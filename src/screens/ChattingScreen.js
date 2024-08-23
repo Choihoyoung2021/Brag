@@ -4,7 +4,7 @@ import { Text, View } from "react-native";
 const ChattingScreen = () => {
   return (
     <View>
-      <Text>이승민</Text>
+      <Text>이승민 게이새끼</Text>
     </View>
   );
 };
