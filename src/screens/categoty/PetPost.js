@@ -5,7 +5,7 @@ import { View, Text } from "react-native";
 const PetPost = () => {
   return (
     <View>
-      <Text>공지사항</Text>
+      <Text>강아지/고양이게시판</Text>
     </View>
   );
 };

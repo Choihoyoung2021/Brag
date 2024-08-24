@@ -5,7 +5,7 @@ import { View, Text } from "react-native";
 const TipPosts = () => {
   return (
     <View>
-      <Text>공지사항</Text>
+      <Text>나만의 사육TIP</Text>
     </View>
   );
 };

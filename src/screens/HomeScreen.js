@@ -50,21 +50,22 @@ const HomeScreen = () => {
           <Ionicons name="list" size={24} color="black" />
         </TouchableOpacity>
       </View>
-      <ScrollView style={styles.contentContainer}>
-        {isListVisible && (
-          <View style={styles.listContainer}>
-            {data.map((item) => (
-              <TouchableOpacity
-                key={item.id}
-                style={styles.listItem}
-                onPress={() => handlePress(item)}
-              >
-                <Text>{item.title}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
 
+      {isListVisible && (
+        <View style={styles.listContainer}>
+          {data.map((item) => (
+            <TouchableOpacity
+              key={item.id}
+              style={styles.listItem}
+              onPress={() => handlePress(item)}
+            >
+              <Text>{item.title}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
+
+      <ScrollView style={styles.contentContainer}>
         {/* 로컬 이미지 추가 */}
         <View style={styles.imageContainer}>
           <Image
@@ -84,6 +85,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingTop: 50,
     paddingHorizontal: 16,
+    backgroundColor: "#FFFFFF", // 배경색 설정
   },
   headerContainer: {
     flexDirection: "row",
@@ -105,10 +107,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 10,
     backgroundColor: "#f9f9f9",
+    marginRight: 8, // 아이콘과의 간격
   },
   searchIconButton: {
-    position: "absolute",
-    right: 10,
     padding: 8,
   },
   categoryButton: {
@@ -121,8 +122,8 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     position: "absolute",
-    top: "10%",
-    right: 16,
+    top: 105, // 헤더 높이에 따라 조정 필요
+    right: 35,
     width: "60%",
     backgroundColor: "#fff",
     borderRadius: 8,
@@ -137,7 +138,6 @@ const styles = StyleSheet.create({
     borderBottomColor: "#ccc",
   },
   imageContainer: {
-    top: "1%",
     width: "100%",
     height: 120,
     marginTop: 20,

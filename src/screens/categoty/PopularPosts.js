@@ -5,7 +5,7 @@ import { View, Text } from "react-native";
 const PopularPosts = () => {
   return (
     <View>
-      <Text>공지사항</Text>
+      <Text>인기글</Text>
     </View>
   );
 };
