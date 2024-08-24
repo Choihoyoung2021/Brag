@@ -37,7 +37,7 @@ const HomeScreen = () => {
         <View style={styles.searchContainer}>
           <TextInput
             style={styles.searchInput}
-            placeholder="검색어를 입력하세요!"
+            placeholder="검색어를 입력하세요"
           />
           <TouchableOpacity style={styles.searchIconButton}>
             <Ionicons name="search" size={24} color="black" />
@@ -66,11 +66,12 @@ const HomeScreen = () => {
         )}
 
         {/* 로컬 이미지 추가 */}
-        <Image
-          source={require("../../assets/logo2.png")} // 실제 이미지 경로로 변경
-          style={styles.image}
-        />
-        {/* 추가적인 콘텐츠를 여기에 추가할 수 있습니다 */}
+        <View style={styles.imageContainer}>
+          <Image
+            source={require("../../assets/advertisement.png")} // 실제 이미지 경로로 변경
+            style={styles.image}
+          />
+        </View>
       </ScrollView>
     </View>
   );
@@ -119,29 +120,34 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   listContainer: {
-    marginTop: 20,
+    position: "absolute",
+    top: "10%",
+    right: 16,
+    width: "60%",
     backgroundColor: "#fff",
     borderRadius: 8,
     borderColor: "#ccc",
     borderWidth: 1,
     elevation: 4,
+    zIndex: 1,
   },
   listItem: {
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: "#ccc",
   },
-  image: {
+  imageContainer: {
+    top: "1%",
     width: "100%",
-    height: 200,
+    height: 120,
     marginTop: 20,
     borderRadius: 8,
+    overflow: "hidden", // 이미지가 영역을 넘지 않도록 설정
   },
-  placeholderText: {
-    marginTop: 20,
-    fontSize: 16,
-    textAlign: "center",
-    color: "#888",
+  image: {
+    width: "100%",
+    height: "100%", // 컨테이너 크기에 맞게 조정
+    resizeMode: "contain", // 이미지가 비율에 맞게 조정
   },
 });
 
