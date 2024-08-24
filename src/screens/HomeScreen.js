@@ -7,7 +7,6 @@ import {
   Text,
   FlatList,
   Alert,
-  Image,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -18,7 +17,6 @@ const HomeScreen = () => {
     setListVisible(!isListVisible);
   };
 
-  // 리스트 데이터 (예시)
   const data = [
     { id: "1", title: "공지사항" },
     { id: "2", title: "전체글보기" },
@@ -28,29 +26,29 @@ const HomeScreen = () => {
     { id: "6", title: "캘린더" },
   ];
 
-  // 리스트 항목 클릭 시 호출되는 함수
   const handlePress = (item) => {
     Alert.alert("선택된 항목", item.title);
-    // 여기에 다른 동작을 추가할 수 있습니다 (예: 화면 전환 등)
   };
 
   return (
     <View style={styles.container}>
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="검색어를 입력하세요"
-        />
-        <TouchableOpacity style={styles.searchIconButton}>
-          <Ionicons name="search" size={24} color="black" />
+      <View style={styles.headerContainer}>
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="검색어를 입력하세요"
+          />
+          <TouchableOpacity style={styles.searchIconButton}>
+            <Ionicons name="search" size={24} color="black" />
+          </TouchableOpacity>
+        </View>
+        <TouchableOpacity
+          style={styles.categoryButton}
+          onPress={toggleListVisibility}
+        >
+          <Ionicons name="list" size={24} color="black" />
         </TouchableOpacity>
       </View>
-      <TouchableOpacity
-        style={styles.categoryButton}
-        onPress={toggleListVisibility}
-      >
-        <Ionicons name="list" size={24} color="black" />
-      </TouchableOpacity>
       {isListVisible && (
         <View style={styles.listContainer}>
           <FlatList
@@ -74,46 +72,51 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "flex-start", // 상단에 배치
-    alignItems: "center", // 수평 가운데 정렬
-    paddingTop: 50, // 상단 여백
+    justifyContent: "flex-start",
+    alignItems: "center",
+    paddingTop: 50,
+    paddingHorizontal: 16,
+  },
+  headerContainer: {
+    flexDirection: "row", // 검색과 카테고리 버튼을 가로로 배치
+    alignItems: "center",
+    justifyContent: "space-between", // 검색창과 버튼 사이 공간을 균등하게 분배
+    width: "100%", // 전체 너비 사용
     paddingHorizontal: 16, // 좌우 여백
   },
   searchContainer: {
-    flexDirection: "row", // 가로 방향 배치
-    alignItems: "center", // 세로 방향 중앙 정렬
-    width: "55%", // 전체 너비 사용
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1, // 검색창이 가능한 큰 공간을 차지하도록 설정
   },
   searchInput: {
-    flex: 1, // 가용 공간을 모두 차지
+    flex: 1,
     height: 40,
     borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 10,
-    backgroundColor: "#f9f9f9", // 검색창 배경색
+    backgroundColor: "#f9f9f9",
   },
   searchIconButton: {
-    position: "absolute", // 검색 바 오른쪽에 아이콘을 배치
+    position: "absolute",
     right: 10,
     padding: 8,
   },
   categoryButton: {
-    position: "absolute", // 카테고리 버튼을 화면 상단에 고정
-    top: 50, // 상단 여백
-    right: 16, // 우측 여백
-    padding: 8, // 아이콘 주변 여백
+    marginLeft: 16, // 검색창과 버튼 사이의 간격
+    padding: 8,
   },
   listContainer: {
-    position: "absolute", // 리스트 박스를 화면에 고정
-    top: 100, // 카테고리 버튼 아래에 위치
-    right: 16, // 우측 여백
-    width: "60%", // 박스 너비
-    backgroundColor: "#fff", // 배경색
+    position: "absolute",
+    top: 100,
+    right: 16,
+    width: "60%",
+    backgroundColor: "#fff",
     borderRadius: 8,
     borderColor: "#ccc",
     borderWidth: 1,
-    elevation: 4, // 그림자 효과
+    elevation: 4,
   },
   listItem: {
     padding: 10,

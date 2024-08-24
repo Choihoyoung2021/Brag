@@ -8,7 +8,6 @@ import HomeScreen from "./HomeScreen";
 import ShortsScreen from "./ShortsScreen";
 import ShortsproduceScreen from "./ShortsproduceScreen";
 import ProfilesScreen from "./ProfilesScreen";
-
 import MaterialIcons from "@expo/vector-icons/MaterialIcons"; // 홈 아이콘
 import AntDesign from "@expo/vector-icons/AntDesign"; // 쇼츠 아이콘
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons"; // 채팅 아이콘
