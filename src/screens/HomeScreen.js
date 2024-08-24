@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-const HomeScreen = () => {
+const HomeScreen = ({ navigation }) => {
   const [isListVisible, setListVisible] = useState(false);
 
   const toggleListVisibility = () => {
@@ -28,7 +28,21 @@ const HomeScreen = () => {
   ];
 
   const handlePress = (item) => {
-    Alert.alert("선택된 항목", item.title);
+    if (item.id === "1") {
+      navigation.navigate("Announcement");
+    } else if (item.id === "2") {
+      navigation.navigate("AllPosts"); // 전체글보기 화면으로 이동
+    } else if (item.id === "3") {
+      navigation.navigate("PopularPosts");
+    } else if (item.id === "4") {
+      navigation.navigate("PetPost"); // 강아지/고양이게시판 화면으로 이동
+    } else if (item.id === "5") {
+      navigation.navigate("TipPosts"); // 나만의 사육TIP 화면으로 이동
+    } else if (item.id === "6") {
+      navigation.navigate("Calender");
+    } else {
+      Alert.alert("선택된 항목", item.title);
+    }
   };
 
   return (

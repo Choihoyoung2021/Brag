@@ -5,7 +5,7 @@ import { View, Text } from "react-native";
 const AllPosts = () => {
   return (
     <View>
-      <Text>공지사항</Text>
+      <Text>전체글</Text>
     </View>
   );
 };
