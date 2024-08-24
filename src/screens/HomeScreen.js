@@ -1,14 +1,5 @@
 import React, { useState } from "react";
-import {
-  TextInput,
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  Text,
-  ScrollView,
-  Image,
-  Alert,
-} from "react-native";
+import { TextInput, View, StyleSheet, TouchableOpacity, Text, ScrollView, Image, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 const HomeScreen = () => {
@@ -35,18 +26,12 @@ const HomeScreen = () => {
     <View style={styles.container}>
       <View style={styles.headerContainer}>
         <View style={styles.searchContainer}>
-          <TextInput
-            style={styles.searchInput}
-            placeholder="검색어를 입력하세요!"
-          />
+          <TextInput style={styles.searchInput} placeholder="검색어를 입력하세요!" />
           <TouchableOpacity style={styles.searchIconButton}>
             <Ionicons name="search" size={24} color="black" />
           </TouchableOpacity>
         </View>
-        <TouchableOpacity
-          style={styles.categoryButton}
-          onPress={toggleListVisibility}
-        >
+        <TouchableOpacity style={styles.categoryButton} onPress={toggleListVisibility}>
           <Ionicons name="list" size={24} color="black" />
         </TouchableOpacity>
       </View>
@@ -54,11 +39,7 @@ const HomeScreen = () => {
         {isListVisible && (
           <View style={styles.listContainer}>
             {data.map((item) => (
-              <TouchableOpacity
-                key={item.id}
-                style={styles.listItem}
-                onPress={() => handlePress(item)}
-              >
+              <TouchableOpacity key={item.id} style={styles.listItem} onPress={() => handlePress(item)}>
                 <Text>{item.title}</Text>
               </TouchableOpacity>
             ))}
@@ -71,6 +52,9 @@ const HomeScreen = () => {
           style={styles.image}
         />
         {/* 추가적인 콘텐츠를 여기에 추가할 수 있습니다 */}
+        <View>
+          <Text>개 고양이</Text>
+        </View>
       </ScrollView>
     </View>
   );
