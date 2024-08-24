@@ -5,7 +5,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   Text,
-  FlatList,
+  ScrollView,
+  Image,
   Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -36,7 +37,7 @@ const HomeScreen = () => {
         <View style={styles.searchContainer}>
           <TextInput
             style={styles.searchInput}
-            placeholder="검색어를 입력하세요"
+            placeholder="검색어를 입력하세요!"
           />
           <TouchableOpacity style={styles.searchIconButton}>
             <Ionicons name="search" size={24} color="black" />
@@ -49,22 +50,28 @@ const HomeScreen = () => {
           <Ionicons name="list" size={24} color="black" />
         </TouchableOpacity>
       </View>
-      {isListVisible && (
-        <View style={styles.listContainer}>
-          <FlatList
-            data={data}
-            renderItem={({ item }) => (
+      <ScrollView style={styles.contentContainer}>
+        {isListVisible && (
+          <View style={styles.listContainer}>
+            {data.map((item) => (
               <TouchableOpacity
+                key={item.id}
                 style={styles.listItem}
                 onPress={() => handlePress(item)}
               >
                 <Text>{item.title}</Text>
               </TouchableOpacity>
-            )}
-            keyExtractor={(item) => item.id}
-          />
-        </View>
-      )}
+            ))}
+          </View>
+        )}
+
+        {/* 로컬 이미지 추가 */}
+        <Image
+          source={require("../../assets/logo2.png")} // 실제 이미지 경로로 변경
+          style={styles.image}
+        />
+        {/* 추가적인 콘텐츠를 여기에 추가할 수 있습니다 */}
+      </ScrollView>
     </View>
   );
 };
@@ -78,16 +85,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   headerContainer: {
-    flexDirection: "row", // 검색과 카테고리 버튼을 가로로 배치
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between", // 검색창과 버튼 사이 공간을 균등하게 분배
-    width: "100%", // 전체 너비 사용
-    paddingHorizontal: 16, // 좌우 여백
+    justifyContent: "space-between",
+    width: "100%",
+    paddingHorizontal: 16,
   },
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
-    flex: 1, // 검색창이 가능한 큰 공간을 차지하도록 설정
+    flex: 1,
   },
   searchInput: {
     flex: 1,
@@ -104,14 +111,15 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   categoryButton: {
-    marginLeft: 16, // 검색창과 버튼 사이의 간격
+    marginLeft: 16,
     padding: 8,
   },
+  contentContainer: {
+    flex: 1,
+    width: "100%",
+  },
   listContainer: {
-    position: "absolute",
-    top: 100,
-    right: 16,
-    width: "60%",
+    marginTop: 20,
     backgroundColor: "#fff",
     borderRadius: 8,
     borderColor: "#ccc",
@@ -122,6 +130,18 @@ const styles = StyleSheet.create({
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: "#ccc",
+  },
+  image: {
+    width: "100%",
+    height: 200,
+    marginTop: 20,
+    borderRadius: 8,
+  },
+  placeholderText: {
+    marginTop: 20,
+    fontSize: 16,
+    textAlign: "center",
+    color: "#888",
   },
 });
 
