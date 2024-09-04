@@ -8,13 +8,20 @@ import PopularPosts from "./src/screens/category/PopularPosts";
 import AllPosts from "./src/screens/category/AllPosts";
 import PetPost from "./src/screens/category/PetPost";
 import TipPosts from "./src/screens/category/TipPosts";
+import { LoginScreen } from "./src/screens/LoginScreen";
 
 const Stack = createStackNavigator();
 
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="MainTabs">
+      <Stack.Navigator initialRouteName="Login">
+        {/* LoginScreen을 초기 화면으로 설정 */}
+        <Stack.Screen
+          name="Login"
+          component={LoginScreen}
+          options={{ headerShown: false }} // 헤더 숨기기
+        />
         <Stack.Screen
           name="MainTabs"
           component={MainTabs}
