@@ -1,29 +1,41 @@
-//MainTabs.js 파일
-
+// MainTabs.js
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Ionicons } from "@expo/vector-icons";
-import ChattingScreen from "./ChattingScreen";
+import { createStackNavigator } from "@react-navigation/stack";
 import HomeScreen from "./HomeScreen";
 import ShortsScreen from "./ShortsScreen";
 import ShortsproduceScreen from "./ShortsproduceScreen";
 import ProfilesScreen from "./ProfilesScreen";
+import ChatRoomsScreen from "./ChattingRoomScreen";
+import ChattingScreen from "./ChattingScreen";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons"; // 홈 아이콘
 import AntDesign from "@expo/vector-icons/AntDesign"; // 쇼츠 아이콘
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons"; // 채팅 아이콘
 import Octicons from "@expo/vector-icons/Octicons"; // 프로필 아이콘
 
 const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator();
+
+const ChatStack = () => (
+  <Stack.Navigator
+    screenOptions={{
+      headerShown: false,
+    }}
+  >
+    <Stack.Screen name="ChatRoomsScreen" component={ChatRoomsScreen} />
+    <Stack.Screen name="ChattingScreen" component={ChattingScreen} />
+  </Stack.Navigator>
+);
 
 function MainTabs() {
   return (
     <Tab.Navigator
       screenOptions={{
-        headerShown: false, // 헤더 없애기
-        tabBarActiveTintColor: "gray", // 선택된 탭의 아이콘 색상
-        tabBarInactiveTintColor: "black", // 선택되지 않은 탭의 아이콘 색상
+        headerShown: false,
+        tabBarActiveTintColor: "gray",
+        tabBarInactiveTintColor: "black",
         tabBarStyle: {
-          display: "flex", // 탭 바 항상 보이도록 설정
+          display: "flex",
         },
       }}
     >
@@ -55,8 +67,8 @@ function MainTabs() {
         }}
       />
       <Tab.Screen
-        name="Chatting"
-        component={ChattingScreen}
+        name="Chat"
+        component={ChatStack}
         options={{
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons
