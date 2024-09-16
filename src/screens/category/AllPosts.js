@@ -1,14 +1,45 @@
-import React, { useState } from "react";
-import { View, TextInput, StyleSheet, ScrollView, Text } from "react-native";
+// AllPosts.js
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  TextInput,
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+} from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome"; // Import the Icon
 
-const AllPosts = () => {
+import { getAllPosts } from "../../firebase/firestoreService";
+
+const AllPosts = ({ navigation }) => {
+  const [posts, setPosts] = useState([]);
   const [searchText, setSearchText] = useState("");
+
+  useEffect(() => {
+    // Fetch all posts when the component mounts
+    const fetchPosts = async () => {
+      const allPosts = await getAllPosts();
+      setPosts(allPosts);
+    };
+
+    fetchPosts();
+  }, []);
 
   const handleSearch = (text) => {
     setSearchText(text);
-    // Implement search logic here
   };
+
+  const handleAddPost = () => {
+    navigation.navigate("AddPost"); // Navigate to AddPostScreen
+  };
+
+  const renderPost = ({ item }) => (
+    <View style={styles.post}>
+      <Text style={styles.title}>{item.title}</Text>
+      <Text>{item.content}</Text>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
@@ -22,13 +53,19 @@ const AllPosts = () => {
         <Icon name="search" size={20} color="#000" style={styles.searchIcon} />
       </View>
 
-      <ScrollView style={styles.postsContainer}>
-        {/* Example content */}
-        <Text style={styles.postText}>포스트 1</Text>
-        <Text style={styles.postText}>포스트 2</Text>
-        <Text style={styles.postText}>포스트 3</Text>
-        {/* Add more posts here */}
-      </ScrollView>
+      <FlatList
+        data={posts.filter(
+          (post) =>
+            post.title.includes(searchText) || post.content.includes(searchText)
+        )}
+        keyExtractor={(item) => item.id}
+        renderItem={renderPost}
+        style={styles.postsContainer}
+      />
+
+      <TouchableOpacity style={styles.buttonContainer} onPress={handleAddPost}>
+        <Text style={styles.buttonText}>글쓰기</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -58,14 +95,32 @@ const styles = StyleSheet.create({
   },
   postsContainer: {
     flex: 1,
-    width: "100%", // Ensure ScrollView takes full width
-    marginTop: 10, // Add some margin on top of the ScrollView
+    width: "100%",
+    marginTop: 10,
   },
-  postText: {
-    fontSize: 18,
+  post: {
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
+  },
+  title: {
+    fontWeight: "bold",
+  },
+  buttonContainer: {
+    marginTop: 10,
+    alignItems: "flex-end",
+    marginBottom: 80,
+    marginRight: 20,
+    padding: 10,
+    backgroundColor: "#007bff",
+    borderRadius: 20,
+    width: 120,
+    alignSelf: "flex-end",
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
   },
 });
 

@@ -9,6 +9,7 @@ import AllPosts from "./src/screens/category/AllPosts";
 import PetPost from "./src/screens/category/PetPost";
 import TipPosts from "./src/screens/category/TipPosts";
 import { LoginScreen } from "./src/screens/LoginScreen";
+import AddPostScreen from "./src/screens/category/2Screen.js/AddPostScreen";
 
 const Stack = createStackNavigator();
 
@@ -56,6 +57,12 @@ export default function App() {
           name="TipPosts"
           component={TipPosts}
           options={{ title: "나만의 사육TIP" }}
+        />
+
+        <Stack.Screen
+          name="AddPost"
+          component={AddPostScreen}
+          options={{ title: "글쓰기" }}
         />
       </Stack.Navigator>
     </NavigationContainer>

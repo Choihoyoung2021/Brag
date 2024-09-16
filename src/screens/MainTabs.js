@@ -79,6 +79,7 @@ function MainTabs() {
           ),
         }}
       />
+
       <Tab.Screen
         name="Profiles"
         component={ProfilesScreen}
