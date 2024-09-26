@@ -1,5 +1,4 @@
-// [LoginScreen.js] 파일
-
+// LoginScreen.js
 import React, { useRef, useEffect, useLayoutEffect } from "react";
 import {
   StyleSheet,
@@ -10,7 +9,6 @@ import {
   Animated,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-
 import { Spacer } from "../components/spacer";
 
 export const LoginScreen = ({ navigation }) => {
@@ -31,10 +29,9 @@ export const LoginScreen = ({ navigation }) => {
     }).start();
   }, [fadeAnim, slideAnim]);
 
-  // 헤더 숨기기 설정
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerShown: false, // 현재 화면에서 헤더 숨기기
+      headerShown: false,
     });
   }, [navigation]);
 
@@ -74,9 +71,14 @@ export const LoginScreen = ({ navigation }) => {
           <View style={styles.line} />
           <Text style={styles.lineText}>SNS 계정으로 로그인</Text>
         </View>
-        <View></View>
 
-        <View style={{ flexDirection: "row", justifyContent: "space-evenly" }}>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-evenly",
+            marginTop: -70,
+          }}
+        >
           <TouchableOpacity onPress={() => navigation.navigate("MainTabs")}>
             <Image
               source={require("../../assets/kakao.png")}
@@ -102,6 +104,14 @@ export const LoginScreen = ({ navigation }) => {
             />
           </TouchableOpacity>
         </View>
+
+        {/* 앱 로그인 버튼 추가 */}
+        <TouchableOpacity
+          style={styles.appLoginButton}
+          onPress={() => navigation.navigate("SelectLogin")} // 로그인 선택 화면으로 이동
+        >
+          <Text style={styles.appLoginText}>앱 로그인</Text>
+        </TouchableOpacity>
       </SafeAreaView>
     </SafeAreaProvider>
   );
@@ -115,18 +125,32 @@ const styles = StyleSheet.create({
   },
   line: {
     position: "absolute",
-    top: "90%", // 선 위치 조정
+    top: "78%",
     width: "100%",
     height: 2,
     backgroundColor: "#BDBDBD",
   },
   lineText: {
+    marginTop: 0,
     position: "absolute",
-    top: "88.4%", // 텍스트 위치 조정
-    backgroundColor: "#ffffff", // 텍스트 배경색
-    paddingHorizontal: 10, // 텍스트 좌우 패딩
+    top: "76%",
+    backgroundColor: "#ffffff",
+    paddingHorizontal: 10,
     fontSize: 16,
-    color: "#BDBDBD", // 텍스트 색상
-    fontWeight: "bold", // 텍스트 두께
+    color: "#BDBDBD",
+    fontWeight: "bold",
+  },
+  appLoginButton: {
+    marginTop: 30,
+    backgroundColor: "#4CAF50",
+    padding: 15,
+    borderRadius: 10,
+    alignItems: "center",
+    marginHorizontal: 50,
+  },
+  appLoginText: {
+    color: "#ffffff",
+    fontSize: 18,
+    fontWeight: "bold",
   },
 });

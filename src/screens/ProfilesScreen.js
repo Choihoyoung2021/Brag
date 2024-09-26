@@ -3,7 +3,6 @@ import { Text, View, Image, StyleSheet, FlatList } from "react-native";
 
 const profileData = {
   username: "username",
-  description: "This is a user description",
   profileImage: "https://via.placeholder.com/80", // 프로필 사진
   posts: [
     "https://via.placeholder.com/150", // 게시물 이미지 1
@@ -30,30 +29,30 @@ const ProfilesScreen = () => {
         />
         <View style={styles.userInfo}>
           <Text style={styles.username}>{profileData.username}</Text>
+          <View style={styles.statsContainer}>
+            <View style={styles.stat}>
+              <Text style={styles.statNumber}>게시물</Text>
+              <Text style={styles.statLabel}>10</Text>
+            </View>
+            <View style={styles.stat}>
+              <Text style={styles.statNumber}>팔로워</Text>
+              <Text style={styles.statLabel}>100</Text>
+            </View>
+            <View style={styles.stat}>
+              <Text style={styles.statNumber}>팔로우</Text>
+              <Text style={styles.statLabel}>200</Text>
+            </View>
+          </View>
           <Text style={styles.description}>{profileData.description}</Text>
-        </View>
-        <View style={styles.statsContainer}>
-          <View style={styles.stat}>
-            <Text style={styles.statNumber}>10</Text>
-            <Text style={styles.statLabel}>게시물</Text>
-          </View>
-          <View style={styles.stat}>
-            <Text style={styles.statNumber}>100</Text>
-            <Text style={styles.statLabel}>팔로워</Text>
-          </View>
-          <View style={styles.stat}>
-            <Text style={styles.statNumber}>200</Text>
-            <Text style={styles.statLabel}>팔로우</Text>
-          </View>
         </View>
       </View>
       <FlatList
         data={profileData.posts}
         renderItem={renderPost}
-        keyExtractor={(item) => item}
+        keyExtractor={(item, index) => index.toString()} // 인덱스를 사용하여 고유 키 생성
         numColumns={3}
         columnWrapperStyle={styles.row}
-        contentContainerStyle={styles.postsContainer}
+        contentContainerStyle={[styles.postsContainer, { marginTop: 130 }]}
       />
     </View>
   );
@@ -64,7 +63,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     backgroundColor: "#ffffff",
-    paddingTop: 40, // 상단에 추가적인 패딩
+    paddingVertical: 90, // 상단에 추가적인 패딩
   },
   profileLabel: {
     fontSize: 24,
@@ -76,18 +75,19 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
   },
   profileImage: {
-    width: 80,
-    height: 80,
+    width: 115,
+    height: 115,
     borderRadius: 40,
     marginRight: 16,
   },
   userInfo: {
     flex: 1,
-    marginTop: 8, // 사용자 이름을 프로필 사진 바로 오른쪽 상단으로 조정
+    marginTop: -10, // 사용자 이름을 프로필 사진 바로 오른쪽 상단으로 조정
   },
   username: {
     fontWeight: "bold",
     fontSize: 18,
+    paddingBottom: 20,
   },
   description: {
     color: "#666",
@@ -96,11 +96,11 @@ const styles = StyleSheet.create({
   statsContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginLeft: 16,
+    marginTop: 8, // 통계 정보를 사용자 이름 아래로 약간의 여백을 두고 배치
   },
   stat: {
     alignItems: "center",
-    marginHorizontal: 8, // 통계 간 간격 조정
+    marginHorizontal: 16, // 통계 간 간격 조정
   },
   statNumber: {
     fontWeight: "bold",
