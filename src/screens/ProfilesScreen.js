@@ -1,76 +1,140 @@
-import React from "react";
-import { Text, View, Image, StyleSheet, FlatList } from "react-native";
+import React, { useState } from "react";
+import {
+  Text,
+  View,
+  Image,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  Modal,
+  SafeAreaView,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 const profileData = {
   username: "username",
   profileImage: "https://via.placeholder.com/80", // 프로필 사진
   posts: [
-    "https://via.placeholder.com/150", // 게시물 이미지 1
-    "https://via.placeholder.com/150", // 게시물 이미지 2
-    "https://via.placeholder.com/150", // 게시물 이미지 3
-    "https://via.placeholder.com/150", // 게시물 이미지 4
-    "https://via.placeholder.com/150", // 게시물 이미지 5
-    "https://via.placeholder.com/150", // 게시물 이미지 6
+    "https://via.placeholder.com/150",
+    "https://via.placeholder.com/150",
+    "https://via.placeholder.com/150",
+    "https://via.placeholder.com/150",
+    "https://via.placeholder.com/150",
+    "https://via.placeholder.com/150",
   ],
 };
 
-const ProfilesScreen = () => {
+const ProfilesScreen = ({ navigation }) => {
+  const [modalVisible, setModalVisible] = useState(false);
+
   const renderPost = ({ item }) => (
     <Image source={{ uri: item }} style={styles.postImage} />
   );
 
+  const handleSettingsPress = () => {
+    setModalVisible(true);
+  };
+
+  const handleLogoutPress = () => {
+    setModalVisible(false);
+    console.log("로그아웃 버튼 클릭됨");
+  };
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.profileLabel}>프로필</Text>
-      <View style={styles.header}>
-        <Image
-          source={{ uri: profileData.profileImage }}
-          style={styles.profileImage}
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.profileLabel}>프로필</Text>
+          <TouchableOpacity onPress={handleSettingsPress}>
+            <Ionicons
+              name="settings-outline"
+              size={24}
+              color="black"
+              style={styles.settingsIcon}
+            />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.profileInfo}>
+          <Image
+            source={{ uri: profileData.profileImage }}
+            style={styles.profileImage}
+          />
+          <View style={styles.userInfo}>
+            <Text style={styles.username}>{profileData.username}</Text>
+            <View style={styles.statsContainer}>
+              <View style={styles.stat}>
+                <Text style={styles.statNumber}>게시물</Text>
+                <Text style={styles.statLabel}>10</Text>
+              </View>
+              <View style={styles.stat}>
+                <Text style={styles.statNumber}>팔로워</Text>
+                <Text style={styles.statLabel}>100</Text>
+              </View>
+              <View style={styles.stat}>
+                <Text style={styles.statNumber}>팔로우</Text>
+                <Text style={styles.statLabel}>200</Text>
+              </View>
+            </View>
+            <Text style={styles.description}>{profileData.description}</Text>
+          </View>
+        </View>
+
+        <FlatList
+          data={profileData.posts}
+          renderItem={renderPost}
+          keyExtractor={(item, index) => index.toString()}
+          numColumns={3}
+          columnWrapperStyle={styles.row}
+          contentContainerStyle={[styles.postsContainer, { marginTop: 130 }]}
         />
-        <View style={styles.userInfo}>
-          <Text style={styles.username}>{profileData.username}</Text>
-          <View style={styles.statsContainer}>
-            <View style={styles.stat}>
-              <Text style={styles.statNumber}>게시물</Text>
-              <Text style={styles.statLabel}>10</Text>
-            </View>
-            <View style={styles.stat}>
-              <Text style={styles.statNumber}>팔로워</Text>
-              <Text style={styles.statLabel}>100</Text>
-            </View>
-            <View style={styles.stat}>
-              <Text style={styles.statNumber}>팔로우</Text>
-              <Text style={styles.statLabel}>200</Text>
+
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <TouchableOpacity onPress={handleLogoutPress}>
+                <Text style={styles.logoutText}>로그아웃</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setModalVisible(false)}>
+                <Text style={styles.cancelText}>취소</Text>
+              </TouchableOpacity>
             </View>
           </View>
-          <Text style={styles.description}>{profileData.description}</Text>
-        </View>
+        </Modal>
       </View>
-      <FlatList
-        data={profileData.posts}
-        renderItem={renderPost}
-        keyExtractor={(item, index) => index.toString()} // 인덱스를 사용하여 고유 키 생성
-        numColumns={3}
-        columnWrapperStyle={styles.row}
-        contentContainerStyle={[styles.postsContainer, { marginTop: 130 }]}
-      />
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#ffffff",
+  },
   container: {
     flex: 1,
     padding: 16,
     backgroundColor: "#ffffff",
-    paddingVertical: 90, // 상단에 추가적인 패딩
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
   },
   profileLabel: {
     fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 16,
   },
-  header: {
+  settingsIcon: {
+    marginRight: 16,
+  },
+  profileInfo: {
     flexDirection: "row",
     alignItems: "flex-start",
   },
@@ -82,7 +146,7 @@ const styles = StyleSheet.create({
   },
   userInfo: {
     flex: 1,
-    marginTop: -10, // 사용자 이름을 프로필 사진 바로 오른쪽 상단으로 조정
+    marginTop: -10,
   },
   username: {
     fontWeight: "bold",
@@ -96,11 +160,11 @@ const styles = StyleSheet.create({
   statsContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 8, // 통계 정보를 사용자 이름 아래로 약간의 여백을 두고 배치
+    marginTop: 8,
   },
   stat: {
     alignItems: "center",
-    marginHorizontal: 16, // 통계 간 간격 조정
+    marginHorizontal: 16,
   },
   statNumber: {
     fontWeight: "bold",
@@ -119,6 +183,29 @@ const styles = StyleSheet.create({
   },
   postsContainer: {
     paddingBottom: 16,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalContent: {
+    width: 250,
+    padding: 20,
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  logoutText: {
+    color: "red",
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 20,
+  },
+  cancelText: {
+    color: "#007bff",
+    fontSize: 16,
   },
 });
 
