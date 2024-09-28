@@ -1,21 +1,17 @@
-import { collection, getDocs, query, where } from "firebase/firestore"; // Firestore 메서드 임포트
-import { db } from "./FirebaseConfig"; // Firestore DB 인스턴스 임포트
+// firebase/LoginLogic.js
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { db } from "./FirebaseConfig";
 
 export const handleLogin = async (userId, password) => {
   try {
-    const usersCollection = collection(db, "users"); // users 컬렉션 가져오기
+    const usersCollection = collection(db, "users");
     const q = query(
       usersCollection,
-      where("user_id", "==", userId), // 아이디가 일치하는지 확인
-      where("password", "==", password) // 비밀번호가 일치하는지 확인
+      where("user_id", "==", userId),
+      where("password", "==", password)
     );
 
-    const usersSnapshot = await getDocs(q); // 쿼리 실행
-
-    // 로그 출력
-    console.log("User ID:", userId);
-    console.log("Password:", password);
-    console.log("Users found:", usersSnapshot.empty);
+    const usersSnapshot = await getDocs(q);
 
     // 사용자가 존재하는지 확인
     if (!usersSnapshot.empty) {

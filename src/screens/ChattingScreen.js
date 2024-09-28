@@ -1,4 +1,3 @@
-// ChattingScreen.js
 import React, { useState, useRef, useEffect } from "react";
 import {
   View,
@@ -11,18 +10,21 @@ import {
   Platform,
   Keyboard,
   TouchableWithoutFeedback,
+  SafeAreaView, // SafeAreaView 추가
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons"; // 아이콘 추가
+import { useNavigation } from "@react-navigation/native"; // navigation 사용
 
 const ChattingScreen = ({ route }) => {
-  const { roomId } = route.params; // 전달된 roomId를 확인
+  const { roomId } = route.params; // 전달된 roomId 확인
+  const navigation = useNavigation(); // navigation 훅 사용
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([
     { id: "1", text: "안녕하세요!", sender: "other" },
     { id: "2", text: "안녕하세요! 반갑습니다!", sender: "self" },
-    // 예시 메시지 추가
   ]);
 
-  const flatListRef = useRef(null); // FlatList의 ref
+  const flatListRef = useRef(null);
 
   const handleSend = () => {
     if (message.trim()) {
@@ -38,7 +40,6 @@ const ChattingScreen = ({ route }) => {
     }
   };
 
-  // 메시지가 추가될 때마다 FlatList 스크롤을 맨 아래로 이동
   useEffect(() => {
     if (flatListRef.current) {
       flatListRef.current.scrollToEnd({ animated: true });
@@ -57,49 +58,71 @@ const ChattingScreen = ({ route }) => {
   );
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardShouldPersistTaps="handled"
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.inner}>
-          <FlatList
-            ref={flatListRef} // ref를 FlatList에 추가
-            data={messages}
-            renderItem={renderMessage}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={styles.messagesContainer}
-            style={styles.messagesList}
-          />
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              value={message}
-              onChangeText={setMessage}
-              placeholder="메시지를 입력하세요..."
-              onSubmitEditing={handleSend} // 엔터키로 전송
+    <SafeAreaView style={styles.safeArea}>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.inner}>
+            {/* 뒤로가기 버튼 */}
+            <View style={styles.header}>
+              <TouchableOpacity onPress={() => navigation.goBack()}>
+                <Ionicons name="arrow-back" size={24} color="black" />
+              </TouchableOpacity>
+              <Text style={styles.headerText}>채팅방</Text>
+            </View>
+
+            <FlatList
+              ref={flatListRef}
+              data={messages}
+              renderItem={renderMessage}
+              keyExtractor={(item) => item.id}
+              contentContainerStyle={styles.messagesContainer}
+              style={styles.messagesList}
             />
-            <TouchableOpacity
-              style={styles.sendButton}
-              onPress={handleSend} // 전송 버튼 클릭 시 메시지 전송
-            >
-              <Text style={styles.sendButtonText}>전송</Text>
-            </TouchableOpacity>
+            <View style={styles.inputContainer}>
+              <TextInput
+                style={styles.input}
+                value={message}
+                onChangeText={setMessage}
+                placeholder="메시지를 입력하세요..."
+                onSubmitEditing={handleSend}
+              />
+              <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
+                <Text style={styles.sendButtonText}>전송</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
 // 스타일 정의
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#f9f9f9", // SafeAreaView 스타일
+  },
   container: {
     flex: 1,
   },
   inner: {
     flex: 1,
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 10,
+    backgroundColor: "#f9f9f9",
+    paddingTop: Platform.OS === "android" ? 20 : 0, // Android용 스테이터스바 공간 추가
+  },
+  headerText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginLeft: 10,
   },
   messagesContainer: {
     padding: 10,
@@ -123,6 +146,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     borderColor: "#ddd",
     borderWidth: 1,
+    marginTop: 10, // 상대 메시지에 마진 추가
   },
   messageText: {
     fontSize: 16,
@@ -135,7 +159,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderTopWidth: 1,
     borderTopColor: "#ddd",
-    // 추가된 스타일
     position: "absolute",
     bottom: 0,
     left: 0,

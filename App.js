@@ -15,6 +15,7 @@ import AddPostScreen from "./src/screens/category/writingScreen/AddPostScreen";
 import { signUpUser } from "./src/firebase/signUpLogic"; // 회원가입 로직 추가
 import { SelectLoginScreen } from "./src/screens/SelectLoginScreen"; // 로그인 선택 화면 추가
 import LoginInputScreen from "./src/screens/LoginInputScreen";
+import PostDetailScreen from "./src/screens/PostDetailScreen"; // PostDetailScreen 추가
 
 const Stack = createStackNavigator();
 
@@ -91,6 +92,11 @@ export default function App() {
           name="AddPost"
           component={AddPostScreen}
           options={{ title: "글쓰기" }}
+        />
+        <Stack.Screen
+          name="PostDetail"
+          component={PostDetailScreen} // PostDetailScreen 추가
+          options={{ title: "게시물 상세보기" }} // 제목 설정
         />
       </Stack.Navigator>
     </NavigationContainer>

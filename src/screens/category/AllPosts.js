@@ -34,11 +34,20 @@ const AllPosts = ({ navigation }) => {
     navigation.navigate("AddPost"); // Navigate to AddPostScreen
   };
 
+  const handlePostPress = (post) => {
+    // Navigate to PostDetailScreen with the selected post's data
+    navigation.navigate("PostDetail", {
+      title: post.title,
+      content: post.content,
+      postId: post.id, // Assuming the post ID is used to fetch comments
+    });
+  };
+
   const renderPost = ({ item }) => (
-    <View style={styles.post}>
+    <TouchableOpacity style={styles.post} onPress={() => handlePostPress(item)}>
       <Text style={styles.title}>{item.title}</Text>
       <Text>{item.content}</Text>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
