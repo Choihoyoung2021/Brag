@@ -1,16 +1,5 @@
-// HomeScreen.js 파일
-
 import React, { useState } from "react";
-import {
-  TextInput,
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  Text,
-  ScrollView,
-  Image,
-  Alert,
-} from "react-native";
+import { TextInput, View, StyleSheet, TouchableOpacity, Text, ScrollView, Image, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 const HomeScreen = ({ navigation }) => {
@@ -33,13 +22,13 @@ const HomeScreen = ({ navigation }) => {
     if (item.id === "1") {
       navigation.navigate("Announcement");
     } else if (item.id === "2") {
-      navigation.navigate("AllPosts"); // 전체글보기 화면으로 이동
+      navigation.navigate("AllPosts");
     } else if (item.id === "3") {
       navigation.navigate("PopularPosts");
     } else if (item.id === "4") {
-      navigation.navigate("PetPost"); // 강아지/고양이게시판 화면으로 이동
+      navigation.navigate("PetPost");
     } else if (item.id === "5") {
-      navigation.navigate("TipPosts"); // 나만의 사육TIP 화면으로 이동
+      navigation.navigate("TipPosts");
     } else if (item.id === "6") {
       navigation.navigate("Calender");
     } else {
@@ -51,18 +40,12 @@ const HomeScreen = ({ navigation }) => {
     <View style={styles.container}>
       <View style={styles.headerContainer}>
         <View style={styles.searchContainer}>
-          <TextInput
-            style={styles.searchInput}
-            placeholder="검색어를 입력하세요"
-          />
+          <TextInput style={styles.searchInput} placeholder="검색어를 입력하세요" />
           <TouchableOpacity style={styles.searchIconButton}>
             <Ionicons name="search" size={24} color="black" />
           </TouchableOpacity>
         </View>
-        <TouchableOpacity
-          style={styles.categoryButton}
-          onPress={toggleListVisibility}
-        >
+        <TouchableOpacity style={styles.categoryButton} onPress={toggleListVisibility}>
           <Ionicons name="list" size={24} color="black" />
         </TouchableOpacity>
       </View>
@@ -70,11 +53,7 @@ const HomeScreen = ({ navigation }) => {
       {isListVisible && (
         <View style={styles.listContainer}>
           {data.map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              style={styles.listItem}
-              onPress={() => handlePress(item)}
-            >
+            <TouchableOpacity key={item.id} style={styles.listItem} onPress={() => handlePress(item)}>
               <Text>{item.title}</Text>
             </TouchableOpacity>
           ))}
@@ -84,10 +63,27 @@ const HomeScreen = ({ navigation }) => {
       <ScrollView style={styles.contentContainer}>
         {/* 로컬 이미지 추가 */}
         <View style={styles.imageContainer}>
-          <Image
-            source={require("../../assets/advertisement.png")} // 실제 이미지 경로로 변경
-            style={styles.image}
-          />
+          <Image source={require("../../assets/advertisement.png")} style={styles.image} />
+        </View>
+
+        {/* 둥근 모서리 사각형 버튼 두 개 가로로 나란히 */}
+        <View style={styles.buttonRow}>
+          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("DogPost")}>
+            <Image
+              source={{
+                uri: "https://img.freepik.com/free-photo/cute-white-pomeranian-dog-on-a-chair_53876-138564.jpg?size=626&ext=jpg&ga=GA1.1.1826414947.1722729600&semt=ais_hybrid",
+              }}
+              style={styles.buttonImage}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("CatPost")}>
+            <Image
+              source={{
+                uri: "https://cdn.pointe.co.kr/news/photo/202106/3636_10174_4958.jpg",
+              }}
+              style={styles.buttonImage}
+            />
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </View>
@@ -101,7 +97,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingTop: 50,
     paddingHorizontal: 16,
-    backgroundColor: "#FFFFFF", // 배경색 설정
+    backgroundColor: "#FFFFFF",
   },
   headerContainer: {
     flexDirection: "row",
@@ -123,7 +119,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 10,
     backgroundColor: "#f9f9f9",
-    marginRight: 8, // 아이콘과의 간격
+    marginRight: 8,
   },
   searchIconButton: {
     padding: 8,
@@ -138,7 +134,7 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     position: "absolute",
-    top: 105, // 헤더 높이에 따라 조정 필요
+    top: 105,
     right: 35,
     width: "60%",
     backgroundColor: "#fff",
@@ -158,12 +154,34 @@ const styles = StyleSheet.create({
     height: 120,
     marginTop: 20,
     borderRadius: 8,
-    overflow: "hidden", // 이미지가 영역을 넘지 않도록 설정
+    overflow: "hidden",
   },
   image: {
     width: "100%",
-    height: "100%", // 컨테이너 크기에 맞게 조정
-    resizeMode: "contain", // 이미지가 비율에 맞게 조정
+    height: "100%",
+    resizeMode: "contain",
+  },
+  buttonRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 20,
+    paddingHorizontal: 10,
+  },
+  button: {
+    flex: 1,
+    marginHorizontal: 5,
+    height: 200,
+    backgroundColor: "#ffffff",
+    borderRadius: 8,
+    paddingVertical: 15,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  buttonImage: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 8,
+    resizeMode: "cover",
   },
 });
 

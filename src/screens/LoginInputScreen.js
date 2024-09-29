@@ -1,12 +1,5 @@
 import React, { useState } from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  TextInput,
-  TouchableOpacity,
-  Alert,
-} from "react-native";
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { handleLogin } from "../firebase/LoginLogic"; // 로그인 로직 가져오기
 
@@ -23,7 +16,7 @@ const LoginInputScreen = ({ navigation }) => {
 
     const success = await handleLogin(userId, password);
     if (success) {
-      navigation.navigate("MainTabs"); // 로그인 성공 시 MainTabs으로 이동
+      navigation.replace("MainTabs"); // 로그인 성공 시 MainTabs으로 이동
     } else {
       Alert.alert("로그인 실패", "아이디 또는 비밀번호가 틀렸습니다.");
     }
@@ -34,12 +27,7 @@ const LoginInputScreen = ({ navigation }) => {
       <SafeAreaView style={styles.container}>
         <Text style={styles.title}>로그인</Text>
 
-        <TextInput
-          style={styles.input}
-          placeholder="아이디"
-          value={userId}
-          onChangeText={setUserId}
-        />
+        <TextInput style={styles.input} placeholder="아이디" value={userId} onChangeText={setUserId} />
         <TextInput
           style={styles.input}
           placeholder="비밀번호"
