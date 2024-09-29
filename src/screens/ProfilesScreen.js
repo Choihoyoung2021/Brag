@@ -1,3 +1,4 @@
+// ProfilesScreen.js
 import React, { useState } from "react";
 import {
   Text,
@@ -10,10 +11,11 @@ import {
   SafeAreaView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { getAuth, signOut } from "firebase/auth"; // Firebase Auth import 추가
 
 const profileData = {
   username: "username",
-  profileImage: "https://via.placeholder.com/80", // 프로필 사진
+  profileImage: "https://via.placeholder.com/80",
   posts: [
     "https://via.placeholder.com/150",
     "https://via.placeholder.com/150",
@@ -36,8 +38,16 @@ const ProfilesScreen = ({ navigation }) => {
   };
 
   const handleLogoutPress = () => {
-    setModalVisible(false);
-    console.log("로그아웃 버튼 클릭됨");
+    const auth = getAuth(); // Firebase 인증 객체 생성
+    signOut(auth)
+      .then(() => {
+        setModalVisible(false);
+        console.log("로그아웃 성공");
+        navigation.navigate("Login"); // 로그아웃 후 로그인 화면으로 이동
+      })
+      .catch((error) => {
+        console.error("로그아웃 오류:", error);
+      });
   };
 
   return (

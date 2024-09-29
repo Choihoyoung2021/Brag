@@ -8,19 +8,22 @@ import {
   Text,
   TouchableOpacity,
 } from "react-native";
-import Icon from "react-native-vector-icons/FontAwesome"; // Import the Icon
-
-import { getAllPosts } from "../../firebase/firestoreService";
+import Icon from "react-native-vector-icons/FontAwesome";
+import { getAllPosts } from "../../firebase/firestoreService"; // 올바른 경로로 import
 
 const AllPosts = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
   const [searchText, setSearchText] = useState("");
 
   useEffect(() => {
-    // Fetch all posts when the component mounts
+    // 컴포넌트가 마운트될 때 모든 게시물 가져오기
     const fetchPosts = async () => {
-      const allPosts = await getAllPosts();
-      setPosts(allPosts);
+      try {
+        const allPosts = await getAllPosts(); // getAllPosts 함수 호출
+        setPosts(allPosts);
+      } catch (error) {
+        console.error("Error fetching posts:", error);
+      }
     };
 
     fetchPosts();
@@ -31,15 +34,15 @@ const AllPosts = ({ navigation }) => {
   };
 
   const handleAddPost = () => {
-    navigation.navigate("AddPost"); // Navigate to AddPostScreen
+    navigation.navigate("AddPost"); // 글쓰기 화면으로 이동
   };
 
   const handlePostPress = (post) => {
-    // Navigate to PostDetailScreen with the selected post's data
+    // 선택된 게시물의 데이터를 상세 보기 화면으로 전달
     navigation.navigate("PostDetail", {
       title: post.title,
       content: post.content,
-      postId: post.id, // Assuming the post ID is used to fetch comments
+      postId: post.id, // 게시물 ID를 사용하여 댓글 등을 가져옴
     });
   };
 

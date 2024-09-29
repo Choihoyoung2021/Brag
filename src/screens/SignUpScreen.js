@@ -6,9 +6,11 @@ import {
   View,
   TextInput,
   TouchableOpacity,
+  Alert, // Alert 추가
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { loginUser } from "../firebase/LoginLogic";
+import { signUpUser } from "../firebase/signUpLogic"; // 회원가입 함수 import
+
 export const SignUpScreen = ({ onSignUp }) => {
   const [userId, setUserId] = useState("");
   const [userName, setUserName] = useState("");
@@ -16,10 +18,18 @@ export const SignUpScreen = ({ onSignUp }) => {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const handleSignUp = () => {
-    if (password !== confirmPassword) {
-      alert("비밀번호가 일치하지 않습니다.");
+    // 비밀번호 길이 확인 및 일치 여부 확인
+    if (password.length < 6) {
+      Alert.alert("회원가입 오류", "비밀번호는 6자 이상을 입력해주세요."); // 사용자에게 메시지 알림
       return;
     }
+
+    if (password !== confirmPassword) {
+      Alert.alert("회원가입 오류", "비밀번호가 일치하지 않습니다."); // 사용자에게 메시지 알림
+      return;
+    }
+
+    // 회원가입 로직 호출
     onSignUp({ userId, userName, password });
   };
 
@@ -61,10 +71,7 @@ export const SignUpScreen = ({ onSignUp }) => {
           keyboardType="default"
           textContentType="newPassword" // 새 비밀번호로 설정
         />
-        <TouchableOpacity
-          style={styles.signUpButton}
-          onPress={handleSignUp} // handleSignUp 함수 호출
-        >
+        <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
           <Text style={styles.signUpText}>회원가입</Text>
         </TouchableOpacity>
       </SafeAreaView>
@@ -98,3 +105,5 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 });
+
+export default SignUpScreen;
