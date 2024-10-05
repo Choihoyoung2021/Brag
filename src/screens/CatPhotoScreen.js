@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, TextInput, StyleSheet, ScrollView, Text } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome"; // Import the Icon
 
-const CatPost = () => {
+const CatPhotoScreen = () => {
   const [searchText, setSearchText] = useState("");
 
   const handleSearch = (text) => {
@@ -69,4 +69,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CatPost;
+export default CatPhotoScreen;

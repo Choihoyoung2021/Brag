@@ -7,21 +7,23 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  Image, // Image 컴포넌트 추가
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
-import { getAllPosts } from "../../firebase/firestoreService";
+import { getFreePosts } from "../../firebase/firestoreService"; // Firestore에서 게시물 데이터를 가져오는 함수 import
 
-const AllPosts = ({ navigation }) => {
+const FreePosts = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
   const [searchText, setSearchText] = useState("");
 
   useEffect(() => {
+    // Firestore에서 게시물 데이터를 가져오는 함수
     const fetchPosts = async () => {
       try {
-        const allPosts = await getAllPosts();
-        setPosts(allPosts);
+        const freePosts = await getFreePosts();
+        setPosts(freePosts);
       } catch (error) {
-        console.error("Error fetching posts:", error);
+        console.error("게시물 목록 가져오기 오류:", error);
       }
     };
 
@@ -42,17 +44,19 @@ const AllPosts = ({ navigation }) => {
       title: post.title,
       content: post.content,
       postId: post.id, // 게시물 ID를 사용하여 댓글 등을 가져옴
+      imageUrls: post.imageUrls || [], // 게시물의 imageUrls 배열을 전달 (빈 배열 처리 추가)
     });
   };
 
-  // AllPosts.js의 renderPost 함수 수정
+  // 게시물 목록 화면의 각 항목을 렌더링하는 함수
   const renderPost = ({ item }) => (
     <TouchableOpacity style={styles.post} onPress={() => handlePostPress(item)}>
       <View style={styles.postHeader}>
         <Text style={styles.title}>{item.title}</Text>
         <Text style={styles.userName}>작성자: {item.user_name}</Text>
       </View>
-      {/* 수정된 내용 */}
+
+      {/* 게시물 내용 표시 (간단하게 한 줄로 표시) */}
       <Text
         style={styles.content}
         numberOfLines={1} // 한 줄로 고정
@@ -60,6 +64,14 @@ const AllPosts = ({ navigation }) => {
       >
         {item.content}
       </Text>
+
+      {/* 이미지 썸네일 추가 (첫 번째 이미지만 표시) */}
+      {item.imageUrls && item.imageUrls.length > 0 && (
+        <Image
+          source={{ uri: item.imageUrls[0] }} // 첫 번째 이미지의 URL 사용
+          style={styles.thumbnailImage} // 스타일 적용
+        />
+      )}
     </TouchableOpacity>
   );
 
@@ -81,7 +93,7 @@ const AllPosts = ({ navigation }) => {
             post.title.includes(searchText) || post.content.includes(searchText)
         )}
         keyExtractor={(item) => item.id}
-        renderItem={renderPost}
+        renderItem={renderPost} // renderItem 함수에서 handlePostPress를 사용하여 게시물 클릭 시 이동 처리
         style={styles.postsContainer}
       />
 
@@ -154,8 +166,14 @@ const styles = StyleSheet.create({
   content: {
     color: "#333", // 글씨 색깔
     fontSize: 14, // 글씨 크기
-    marginTop: -5, // 간격
+    marginTop: 5, // 제목과 내용 사이 간격을 1줄(5px)로 띄움
+  },
+  thumbnailImage: {
+    width: 80, // 썸네일 이미지 너비 축소
+    height: 80, // 썸네일 이미지 높이 축소
+    borderRadius: 10,
+    marginTop: 10,
   },
 });
 
-export default AllPosts;
+export default FreePosts;

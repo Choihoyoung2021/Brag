@@ -5,7 +5,6 @@ import MainTabs from "./src/screens/MainTabs";
 import Announcement from "./src/screens/category/Announcement";
 import Calender from "./src/screens/category/Calender";
 import FreePosts from "./src/screens/category/FreePosts";
-import PetPost from "./src/screens/category/PetPost";
 import TipPosts from "./src/screens/category/TipPosts";
 import { LoginScreen } from "./src/screens/LoginScreen";
 import { SignUpScreen } from "./src/screens/SignUpScreen";
@@ -16,7 +15,8 @@ import LoginInputScreen from "./src/screens/LoginInputScreen";
 import PostDetailScreen from "./src/screens/PostDetailScreen"; // PostDetailScreen 추가
 import CatPost from "./src/screens/category/CatPost"; // CatPost 추가
 import DogPost from "./src/screens/category/DogPost";
-
+import CatPhotoScreen from "./src/screens/CatPhotoScreen";
+import DogPhotoScreen from "./src/screens/DogPhotoScreen";
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -73,11 +73,7 @@ export default function App() {
           component={FreePosts}
           options={{ title: "자유게시판" }}
         />
-        <Stack.Screen
-          name="PetPost"
-          component={PetPost}
-          options={{ title: "강아지/고양이게시판" }}
-        />
+
         <Stack.Screen
           name="TipPosts"
           component={TipPosts}
@@ -96,12 +92,22 @@ export default function App() {
         <Stack.Screen
           name="CatPost"
           component={CatPost}
-          options={{ title: "고양이 게시물" }} // CatPost 스크린 추가
+          options={{ title: "고양이 게시판" }} // CatPost 스크린 추가
         />
         <Stack.Screen
           name="DogPost"
           component={DogPost}
-          options={{ title: "강아지 게시물" }} // DogPost 스크린 추가
+          options={{ title: "강아지 게시판" }} // DogPost 스크린 추가
+        />
+        <Stack.Screen
+          name="DogPhoto"
+          component={DogPhotoScreen}
+          options={{ title: "강아지 사진" }} // DogPost 스크린 추가
+        />
+        <Stack.Screen
+          name="CatPhoto"
+          component={CatPhotoScreen}
+          options={{ title: "고양이 사진" }} // DogPost 스크린 추가
         />
       </Stack.Navigator>
     </NavigationContainer>

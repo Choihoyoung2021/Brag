@@ -1,8 +1,9 @@
 // FirebaseConfig.js
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-import { initializeAuth, getReactNativePersistence } from "firebase/auth"; // 추가된 import
-import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage"; // AsyncStorage import
+import { initializeAuth, getReactNativePersistence } from "firebase/auth";
+import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
+import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBTSZ7g3nR6xLt3Mo5Dnf8bYjWv3KfGwDc",
@@ -25,4 +26,7 @@ const auth = initializeAuth(app, {
   persistence: getReactNativePersistence(ReactNativeAsyncStorage),
 });
 
-export { db, auth };
+// Firebase Storage 초기화
+const storage = getStorage(app);
+
+export { db, auth, storage };
