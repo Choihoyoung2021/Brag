@@ -1,4 +1,4 @@
-// AllPosts.js
+// FreePosts.js
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -45,6 +45,7 @@ const FreePosts = ({ navigation }) => {
       content: post.content,
       postId: post.id, // 게시물 ID를 사용하여 댓글 등을 가져옴
       imageUrls: post.imageUrls || [], // 게시물의 imageUrls 배열을 전달 (빈 배열 처리 추가)
+      uid: post.uid,
     });
   };
 

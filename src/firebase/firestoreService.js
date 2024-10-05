@@ -8,10 +8,11 @@ import {
   doc,
   getDoc,
   updateDoc,
+  deleteDoc, // deleteDoc 함수 import 추가
   arrayUnion,
   arrayRemove,
   where,
-} from "firebase/firestore";
+} from "firebase/firestore"; // Firestore 모듈에서 deleteDoc 및 기타 함수 가져오기
 import { db } from "./FirebaseConfig";
 import { getAuth } from "firebase/auth";
 
@@ -187,6 +188,18 @@ export const getLikesCount = async (postId) => {
     return likes.length;
   } catch (error) {
     console.error("좋아요 수 가져오기 오류:", error);
+    throw error;
+  }
+};
+
+// 게시물 삭제 함수
+export const deletePost = async (postId) => {
+  try {
+    const postRef = doc(db, "posts", postId); // Firestore에서 특정 게시물 참조
+    await deleteDoc(postRef); // 게시물 삭제
+    console.log("게시물이 삭제되었습니다:", postId);
+  } catch (error) {
+    console.error("게시물 삭제 오류:", error);
     throw error;
   }
 };

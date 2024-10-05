@@ -43,6 +43,7 @@ const DogPost = ({ navigation }) => {
       postId: post.id,
       category: "dog",
       imageUrls: post.imageUrls || [], // 이미지 URL 배열 전달
+      uid: post.uid,
     });
   };
 

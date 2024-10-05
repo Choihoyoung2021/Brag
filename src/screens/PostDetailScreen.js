@@ -18,21 +18,22 @@ import {
   addComment,
   getComments,
   getLikesData,
+  deletePost, // 삭제 함수 import
 } from "../firebase/firestoreService";
 import { getAuth } from "firebase/auth";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
-const PostDetailScreen = ({ route }) => {
+const PostDetailScreen = ({ route, navigation }) => {
   const { title, content, postId, imageUrls = [] } = route.params;
   const [likes, setLikes] = useState(0);
   const [liked, setLiked] = useState(false);
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState([]);
+  const [isOwner, setIsOwner] = useState(false); // 게시글 작성자 여부를 판단하는 상태값
 
   useEffect(() => {
     const fetchLikesAndComments = async () => {
       try {
-        console.log("이미지 URL 배열: ", imageUrls);
         const likesCount = await getLikesCount(postId);
         setLikes(likesCount);
 
@@ -42,6 +43,7 @@ const PostDetailScreen = ({ route }) => {
 
         if (user) {
           setLiked(postLikes.includes(user.uid));
+          setIsOwner(user.uid === route.params.uid); // 현재 사용자가 게시물 작성자인지 확인
         }
 
         const commentsList = await getComments(postId);
@@ -77,6 +79,18 @@ const PostDetailScreen = ({ route }) => {
     }
   };
 
+  // 게시글 삭제 함수
+  const handleDeletePost = async () => {
+    try {
+      await deletePost(postId);
+      Alert.alert("삭제 완료", "게시물이 삭제되었습니다.");
+      navigation.goBack(); // 삭제 후 이전 화면으로 돌아가기
+    } catch (error) {
+      Alert.alert("삭제 오류", "게시물 삭제 중 문제가 발생했습니다.");
+      console.error("게시물 삭제 오류:", error);
+    }
+  };
+
   const renderComment = ({ item }) => (
     <View style={styles.comment}>
       <Text style={styles.commentUser}>{item.user_name}</Text>
@@ -99,6 +113,14 @@ const PostDetailScreen = ({ route }) => {
             {/* 제목 섹션 */}
             <View style={styles.titleContainer}>
               <Text style={styles.title}>{title}</Text>
+              {isOwner && ( // 현재 사용자가 작성자일 때만 삭제 버튼 표시
+                <TouchableOpacity
+                  style={styles.deleteButton}
+                  onPress={handleDeletePost}
+                >
+                  <Ionicons name="trash-outline" size={24} color="red" />
+                </TouchableOpacity>
+              )}
             </View>
 
             {/* 내용 섹션 */}
@@ -165,8 +187,14 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     borderWidth: 3,
     borderColor: "#ddd",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   title: { fontSize: 24, fontWeight: "bold" },
+  deleteButton: {
+    padding: 5,
+  },
   contentContainer: {
     backgroundColor: "#ffffff",
     padding: 15,
