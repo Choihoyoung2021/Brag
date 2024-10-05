@@ -15,7 +15,7 @@ const AddPostScreen = ({ navigation }) => {
 
     try {
       await addPost(title, content);
-      navigation.navigate("AllPosts"); // 글쓰기 완료 후 AllPosts 화면으로 이동
+      navigation.navigate("FreePosts"); // 글쓰기 완료 후 AllPosts 화면으로 이동
     } catch (error) {
       console.error("글 작성 중 문제가 발생했습니다:", error); // 에러 콘솔에 출력
       Alert.alert("오류", "글 작성 중 문제가 발생했습니다.");

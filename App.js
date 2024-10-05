@@ -4,8 +4,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import MainTabs from "./src/screens/MainTabs";
 import Announcement from "./src/screens/category/Announcement";
 import Calender from "./src/screens/category/Calender";
-import PopularPosts from "./src/screens/category/PopularPosts";
-import AllPosts from "./src/screens/category/AllPosts";
+import FreePosts from "./src/screens/category/FreePosts";
 import PetPost from "./src/screens/category/PetPost";
 import TipPosts from "./src/screens/category/TipPosts";
 import { LoginScreen } from "./src/screens/LoginScreen";
@@ -50,16 +49,45 @@ export default function App() {
           options={{ title: "로그인" }} // 로그인 스크린 제목
         />
         <Stack.Screen name="SignUp" options={{ title: "회원가입" }}>
-          {({ navigation }) => <SignUpScreen onSignUp={(data) => handleSignUp(data, navigation)} />}
+          {({ navigation }) => (
+            <SignUpScreen onSignUp={(data) => handleSignUp(data, navigation)} />
+          )}
         </Stack.Screen>
-        <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false, gestureEnabled: false }} />
-        <Stack.Screen name="Announcement" component={Announcement} options={{ title: "공지사항" }} />
-        <Stack.Screen name="Calender" component={Calender} options={{ title: "캘린더" }} />
-        <Stack.Screen name="PopularPosts" component={PopularPosts} options={{ title: "인기글" }} />
-        <Stack.Screen name="AllPosts" component={AllPosts} options={{ title: "전체글보기" }} />
-        <Stack.Screen name="PetPost" component={PetPost} options={{ title: "강아지/고양이게시판" }} />
-        <Stack.Screen name="TipPosts" component={TipPosts} options={{ title: "나만의 사육TIP" }} />
-        <Stack.Screen name="AddPost" component={AddPostScreen} options={{ title: "글쓰기" }} />
+        <Stack.Screen
+          name="MainTabs"
+          component={MainTabs}
+          options={{ headerShown: false, gestureEnabled: false }}
+        />
+        <Stack.Screen
+          name="Announcement"
+          component={Announcement}
+          options={{ title: "공지사항" }}
+        />
+        <Stack.Screen
+          name="Calender"
+          component={Calender}
+          options={{ title: "캘린더" }}
+        />
+        <Stack.Screen
+          name="FreePosts"
+          component={FreePosts}
+          options={{ title: "자유게시판" }}
+        />
+        <Stack.Screen
+          name="PetPost"
+          component={PetPost}
+          options={{ title: "강아지/고양이게시판" }}
+        />
+        <Stack.Screen
+          name="TipPosts"
+          component={TipPosts}
+          options={{ title: "나만의 사육TIP" }}
+        />
+        <Stack.Screen
+          name="AddPost"
+          component={AddPostScreen}
+          options={{ title: "글쓰기" }}
+        />
         <Stack.Screen
           name="PostDetail"
           component={PostDetailScreen} // PostDetailScreen 추가

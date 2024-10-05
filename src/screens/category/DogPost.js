@@ -1,3 +1,4 @@
+// DogPosts.js 파일
 import React from "react";
 import { Text, View } from "react-native";
 

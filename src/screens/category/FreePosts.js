@@ -9,17 +9,16 @@ import {
   TouchableOpacity,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
-import { getAllPosts } from "../../firebase/firestoreService"; // 올바른 경로로 import
+import { getAllPosts } from "../../firebase/firestoreService";
 
 const AllPosts = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
   const [searchText, setSearchText] = useState("");
 
   useEffect(() => {
-    // 컴포넌트가 마운트될 때 모든 게시물 가져오기
     const fetchPosts = async () => {
       try {
-        const allPosts = await getAllPosts(); // getAllPosts 함수 호출
+        const allPosts = await getAllPosts();
         setPosts(allPosts);
       } catch (error) {
         console.error("Error fetching posts:", error);
@@ -46,10 +45,21 @@ const AllPosts = ({ navigation }) => {
     });
   };
 
+  // AllPosts.js의 renderPost 함수 수정
   const renderPost = ({ item }) => (
     <TouchableOpacity style={styles.post} onPress={() => handlePostPress(item)}>
-      <Text style={styles.title}>{item.title}</Text>
-      <Text>{item.content}</Text>
+      <View style={styles.postHeader}>
+        <Text style={styles.title}>{item.title}</Text>
+        <Text style={styles.userName}>작성자: {item.user_name}</Text>
+      </View>
+      {/* 수정된 내용 */}
+      <Text
+        style={styles.content}
+        numberOfLines={1} // 한 줄로 고정
+        ellipsizeMode="tail" // 말줄임표(...) 추가
+      >
+        {item.content}
+      </Text>
     </TouchableOpacity>
   );
 
@@ -115,8 +125,15 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
   },
+  postHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
   title: {
     fontWeight: "bold",
+  },
+  userName: {
+    fontStyle: "italic",
   },
   buttonContainer: {
     marginTop: 10,
@@ -133,6 +150,11 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#fff",
     fontSize: 16,
+  },
+  content: {
+    color: "#333", // 글씨 색깔
+    fontSize: 14, // 글씨 크기
+    marginTop: -5, // 간격
   },
 });
 

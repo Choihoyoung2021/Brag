@@ -1,4 +1,3 @@
-// SignUpScreen.js
 import React, { useState } from "react";
 import {
   StyleSheet,
@@ -6,7 +5,7 @@ import {
   View,
   TextInput,
   TouchableOpacity,
-  Alert, // Alert 추가
+  Alert,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { signUpUser } from "../firebase/signUpLogic"; // 회원가입 함수 import
@@ -17,7 +16,7 @@ export const SignUpScreen = ({ onSignUp }) => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     // 비밀번호 길이 확인 및 일치 여부 확인
     if (password.length < 6) {
       Alert.alert("회원가입 오류", "비밀번호는 6자 이상을 입력해주세요."); // 사용자에게 메시지 알림
@@ -29,8 +28,15 @@ export const SignUpScreen = ({ onSignUp }) => {
       return;
     }
 
-    // 회원가입 로직 호출
-    onSignUp({ userId, userName, password });
+    try {
+      // 회원가입 로직 호출
+      const result = await onSignUp({ userId, userName, password });
+      if (result) {
+        Alert.alert("회원가입 성공", "회원가입이 완료되었습니다.");
+      }
+    } catch (error) {
+      Alert.alert("회원가입 오류", error.message); // 오류 메시지를 사용자에게 알림
+    }
   };
 
   return (

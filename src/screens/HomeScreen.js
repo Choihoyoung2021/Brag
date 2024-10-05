@@ -1,5 +1,14 @@
 import React, { useState } from "react";
-import { TextInput, View, StyleSheet, TouchableOpacity, Text, ScrollView, Image, Alert } from "react-native";
+import {
+  TextInput,
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Text,
+  ScrollView,
+  Image,
+  Alert,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 const HomeScreen = ({ navigation }) => {
@@ -11,8 +20,8 @@ const HomeScreen = ({ navigation }) => {
 
   const data = [
     { id: "1", title: "공지사항" },
-    { id: "2", title: "전체글보기" },
-    { id: "3", title: "인기글" },
+    { id: "2", title: "자유게시판" },
+    { id: "3", title: "강아지 게시판" },
     { id: "4", title: "강아지/고양이게시판" },
     { id: "5", title: "나만의 사육TIP" },
     { id: "6", title: "캘린더" },
@@ -22,9 +31,9 @@ const HomeScreen = ({ navigation }) => {
     if (item.id === "1") {
       navigation.navigate("Announcement");
     } else if (item.id === "2") {
-      navigation.navigate("AllPosts");
+      navigation.navigate("FreePosts");
     } else if (item.id === "3") {
-      navigation.navigate("PopularPosts");
+      navigation.navigate("DogPost");
     } else if (item.id === "4") {
       navigation.navigate("PetPost");
     } else if (item.id === "5") {
@@ -40,12 +49,18 @@ const HomeScreen = ({ navigation }) => {
     <View style={styles.container}>
       <View style={styles.headerContainer}>
         <View style={styles.searchContainer}>
-          <TextInput style={styles.searchInput} placeholder="검색어를 입력하세요" />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="검색어를 입력하세요"
+          />
           <TouchableOpacity style={styles.searchIconButton}>
             <Ionicons name="search" size={24} color="black" />
           </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.categoryButton} onPress={toggleListVisibility}>
+        <TouchableOpacity
+          style={styles.categoryButton}
+          onPress={toggleListVisibility}
+        >
           <Ionicons name="list" size={24} color="black" />
         </TouchableOpacity>
       </View>
@@ -53,7 +68,11 @@ const HomeScreen = ({ navigation }) => {
       {isListVisible && (
         <View style={styles.listContainer}>
           {data.map((item) => (
-            <TouchableOpacity key={item.id} style={styles.listItem} onPress={() => handlePress(item)}>
+            <TouchableOpacity
+              key={item.id}
+              style={styles.listItem}
+              onPress={() => handlePress(item)}
+            >
               <Text>{item.title}</Text>
             </TouchableOpacity>
           ))}
@@ -63,12 +82,18 @@ const HomeScreen = ({ navigation }) => {
       <ScrollView style={styles.contentContainer}>
         {/* 로컬 이미지 추가 */}
         <View style={styles.imageContainer}>
-          <Image source={require("../../assets/advertisement.png")} style={styles.image} />
+          <Image
+            source={require("../../assets/advertisement.png")}
+            style={styles.image}
+          />
         </View>
 
         {/* 둥근 모서리 사각형 버튼 두 개 가로로 나란히 */}
         <View style={styles.buttonRow}>
-          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("DogPost")}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => navigation.navigate("DogPost")}
+          >
             <Image
               source={{
                 uri: "https://img.freepik.com/free-photo/cute-white-pomeranian-dog-on-a-chair_53876-138564.jpg?size=626&ext=jpg&ga=GA1.1.1826414947.1722729600&semt=ais_hybrid",
@@ -76,7 +101,10 @@ const HomeScreen = ({ navigation }) => {
               style={styles.buttonImage}
             />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("CatPost")}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => navigation.navigate("CatPost")}
+          >
             <Image
               source={{
                 uri: "https://cdn.pointe.co.kr/news/photo/202106/3636_10174_4958.jpg",
