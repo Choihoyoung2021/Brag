@@ -17,6 +17,8 @@ import CatPost from "./src/screens/category/CatPost"; // CatPost 추가
 import DogPost from "./src/screens/category/DogPost";
 import CatPhotoScreen from "./src/screens/CatPhotoScreen";
 import DogPhotoScreen from "./src/screens/DogPhotoScreen";
+import PhotoAddScreen from "./src/screens/category/writingScreen/PhotoAddScreen";
+
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -108,6 +110,11 @@ export default function App() {
           name="CatPhoto"
           component={CatPhotoScreen}
           options={{ title: "고양이 사진" }} // DogPost 스크린 추가
+        />
+        <Stack.Screen
+          name="PhotoAddScreen"
+          component={PhotoAddScreen}
+          options={{ title: "포토 글쓰기" }} // DogPost 스크린 추가
         />
       </Stack.Navigator>
     </NavigationContainer>

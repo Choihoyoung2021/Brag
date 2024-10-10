@@ -1,17 +1,79 @@
-import React, { useState } from "react";
-import { View, TextInput, StyleSheet, ScrollView, Text } from "react-native";
-import Icon from "react-native-vector-icons/FontAwesome"; // Import the Icon
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  TextInput,
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  Image,
+} from "react-native";
+import Icon from "react-native-vector-icons/FontAwesome";
+import { getDogPosts } from "../firebase/firestoreService"; // DogPosts 함수 import
 
-const DogPhotoScreen = () => {
+const DogPhotoScreen = ({ navigation }) => {
+  const [dogPosts, setDogPosts] = useState([]); // 변수명을 명확하게 변경
   const [searchText, setSearchText] = useState("");
 
+  // Dog 게시물 가져오기
+  useEffect(() => {
+    const fetchDogPosts = async () => {
+      try {
+        const posts = await getDogPosts(); // getDogPosts 함수 호출
+        setDogPosts(posts);
+      } catch (error) {
+        console.error("Dog 게시물 목록 가져오기 오류:", error);
+      }
+    };
+
+    fetchDogPosts();
+  }, []);
+
+  // 검색어 핸들러
   const handleSearch = (text) => {
     setSearchText(text);
-    // Implement search logic here
   };
+
+  // 글쓰기 버튼 핸들러
+  const handleAddPost = () => {
+    navigation.navigate("PhotoAddScreen", { isDogPost: true }); // DogPhotoScreen에서 작성된 게시물임을 전달
+  };
+
+  // 게시물 클릭 시 상세 화면으로 이동
+  const handlePostPress = (post) => {
+    navigation.navigate("PostDetail", {
+      title: post.title,
+      content: post.content,
+      postId: post.id,
+      imageUrls: post.imageUrls || [],
+      uid: post.uid,
+      isDogPost: true, // Dog 게시물임을 전달
+      isCatPost: false, // Cat 게시물이 아님을 명시
+    });
+  };
+
+  // 게시물 렌더링 함수
+  const renderPost = ({ item }) => (
+    <TouchableOpacity style={styles.post} onPress={() => handlePostPress(item)}>
+      <View style={styles.postHeader}>
+        <Text style={styles.title}>{item.title}</Text>
+        <Text style={styles.userName}>작성자: {item.user_name}</Text>
+      </View>
+      <Text style={styles.content} numberOfLines={1} ellipsizeMode="tail">
+        {item.content}
+      </Text>
+      {item.imageUrls && item.imageUrls.length > 0 && (
+        <Image
+          source={{ uri: item.imageUrls[0] }}
+          style={styles.thumbnailImage}
+        />
+      )}
+    </TouchableOpacity>
+  );
 
   return (
     <View style={styles.container}>
+      {/* 검색 창 */}
       <View style={styles.searchBarContainer}>
         <TextInput
           style={styles.searchBar}
@@ -22,13 +84,21 @@ const DogPhotoScreen = () => {
         <Icon name="search" size={20} color="#000" style={styles.searchIcon} />
       </View>
 
-      <ScrollView style={styles.postsContainer}>
-        {/* Example content */}
-        <Text style={styles.postText}>포스트 1</Text>
-        <Text style={styles.postText}>포스트 2</Text>
-        <Text style={styles.postText}>포스트 3</Text>
-        {/* Add more posts here */}
-      </ScrollView>
+      {/* 게시물 리스트 */}
+      <FlatList
+        data={dogPosts.filter(
+          (post) =>
+            post.title.includes(searchText) || post.content.includes(searchText)
+        )}
+        keyExtractor={(item) => item.id}
+        renderItem={renderPost}
+        style={styles.postsContainer}
+      />
+
+      {/* 글쓰기 버튼 */}
+      <TouchableOpacity style={styles.buttonContainer} onPress={handleAddPost}>
+        <Text style={styles.buttonText}>포토 글쓰기</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -58,14 +128,50 @@ const styles = StyleSheet.create({
   },
   postsContainer: {
     flex: 1,
-    width: "100%", // Ensure ScrollView takes full width
-    marginTop: 10, // Add some margin on top of the ScrollView
+    width: "100%",
+    marginTop: 10,
   },
-  postText: {
-    fontSize: 18,
+  post: {
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
+  },
+  postHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  title: {
+    fontWeight: "bold",
+  },
+  userName: {
+    fontStyle: "italic",
+  },
+  buttonContainer: {
+    marginTop: 10,
+    alignItems: "flex-end",
+    marginBottom: 80,
+    marginRight: 20,
+    padding: 10,
+    backgroundColor: "#007bff",
+    borderRadius: 20,
+    width: 120,
+    alignSelf: "flex-end",
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+  },
+  content: {
+    color: "#333",
+    fontSize: 14,
+    marginTop: 5,
+  },
+  thumbnailImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 10,
+    marginTop: 10,
   },
 });
 

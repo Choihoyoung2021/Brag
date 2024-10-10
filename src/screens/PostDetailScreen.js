@@ -18,35 +18,51 @@ import {
   addComment,
   getComments,
   getLikesData,
-  deletePost, // 삭제 함수 import
+  deletePost,
 } from "../firebase/firestoreService";
 import { getAuth } from "firebase/auth";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
 const PostDetailScreen = ({ route, navigation }) => {
-  const { title, content, postId, imageUrls = [] } = route.params;
+  const {
+    title,
+    content,
+    postId,
+    imageUrls = [],
+    isDogPost = false, // 추가: isDogPost 플래그
+    isCatPost = false, // 추가: isCatPost 플래그
+  } = route.params;
   const [likes, setLikes] = useState(0);
   const [liked, setLiked] = useState(false);
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState([]);
-  const [isOwner, setIsOwner] = useState(false); // 게시글 작성자 여부를 판단하는 상태값
+  const [isOwner, setIsOwner] = useState(false);
+
+  // 파라미터 확인을 위한 로그 추가
+  useEffect(() => {
+    console.log("PostDetailScreen received params:", {
+      postId,
+      isDogPost,
+      isCatPost,
+    });
+  }, []);
 
   useEffect(() => {
     const fetchLikesAndComments = async () => {
       try {
-        const likesCount = await getLikesCount(postId);
+        const likesCount = await getLikesCount(postId, isDogPost, isCatPost);
         setLikes(likesCount);
 
-        const postLikes = await getLikesData(postId);
+        const postLikes = await getLikesData(postId, isDogPost, isCatPost);
         const auth = getAuth();
         const user = auth.currentUser;
 
         if (user) {
           setLiked(postLikes.includes(user.uid));
-          setIsOwner(user.uid === route.params.uid); // 현재 사용자가 게시물 작성자인지 확인
+          setIsOwner(user.uid === route.params.uid);
         }
 
-        const commentsList = await getComments(postId);
+        const commentsList = await getComments(postId, isDogPost, isCatPost);
         setComments(commentsList);
       } catch (error) {
         console.error("데이터 가져오기 오류:", error);
@@ -58,7 +74,7 @@ const PostDetailScreen = ({ route, navigation }) => {
 
   const handleLikeToggle = async () => {
     try {
-      const newLikedState = await toggleLikePost(postId);
+      const newLikedState = await toggleLikePost(postId, isDogPost, isCatPost);
       setLiked(newLikedState);
       setLikes((prevLikes) => (newLikedState ? prevLikes + 1 : prevLikes - 1));
     } catch (error) {
@@ -69,9 +85,9 @@ const PostDetailScreen = ({ route, navigation }) => {
   const handleCommentSubmit = async () => {
     try {
       if (comment.trim()) {
-        await addComment(postId, comment);
+        await addComment(postId, comment, isDogPost, isCatPost);
         setComment("");
-        const commentsList = await getComments(postId);
+        const commentsList = await getComments(postId, isDogPost, isCatPost);
         setComments(commentsList);
       }
     } catch (error) {
@@ -79,10 +95,9 @@ const PostDetailScreen = ({ route, navigation }) => {
     }
   };
 
-  // 게시글 삭제 함수
   const handleDeletePost = async () => {
     try {
-      await deletePost(postId);
+      await deletePost(postId, isDogPost, isCatPost);
       Alert.alert("삭제 완료", "게시물이 삭제되었습니다.");
       navigation.goBack(); // 삭제 후 이전 화면으로 돌아가기
     } catch (error) {
@@ -113,7 +128,7 @@ const PostDetailScreen = ({ route, navigation }) => {
             {/* 제목 섹션 */}
             <View style={styles.titleContainer}>
               <Text style={styles.title}>{title}</Text>
-              {isOwner && ( // 현재 사용자가 작성자일 때만 삭제 버튼 표시
+              {isOwner && (
                 <TouchableOpacity
                   style={styles.deleteButton}
                   onPress={handleDeletePost}
@@ -192,9 +207,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   title: { fontSize: 24, fontWeight: "bold" },
-  deleteButton: {
-    padding: 5,
-  },
+  deleteButton: { padding: 5 },
   contentContainer: {
     backgroundColor: "#ffffff",
     padding: 15,
@@ -204,16 +217,8 @@ const styles = StyleSheet.create({
     borderColor: "#ddd",
   },
   content: { fontSize: 16, textAlign: "left", marginBottom: 10 },
-  imageContentContainer: {
-    marginTop: 15,
-    alignItems: "center",
-  },
-  contentImage: {
-    width: 300,
-    height: 300,
-    marginBottom: 15,
-    borderRadius: 10,
-  },
+  imageContentContainer: { marginTop: 15, alignItems: "center" },
+  contentImage: { width: 300, height: 300, marginBottom: 15, borderRadius: 10 },
   interactionContainer: {
     backgroundColor: "#ffffff",
     padding: 15,
