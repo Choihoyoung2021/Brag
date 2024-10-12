@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     padding: 16,
-    backgroundColor: "#f9f9f9",
+    backgroundColor: "#F8F4EC",
   },
   announcementBox: {
     backgroundColor: "#fff",

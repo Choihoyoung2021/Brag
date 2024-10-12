@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 10,
-    backgroundColor: "#ffffff",
+    backgroundColor: "#F8F4EC",
     alignItems: "center",
   },
   searchBarContainer: {
