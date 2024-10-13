@@ -18,7 +18,9 @@ import DogPost from "./src/screens/category/DogPost";
 import CatPhotoScreen from "./src/screens/CatPhotoScreen";
 import DogPhotoScreen from "./src/screens/DogPhotoScreen";
 import PhotoAddScreen from "./src/screens/category/writingScreen/PhotoAddScreen";
-
+import RangKing1Screen from "./src/screens/RanKing1Screen";
+import RangKing2Screen from "./src/screens/RanKing2Screen";
+import RangKing3Screen from "./src/screens/RanKing3Screen";
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -115,6 +117,22 @@ export default function App() {
           name="PhotoAddScreen"
           component={PhotoAddScreen}
           options={{ title: "포토 글쓰기" }} // DogPost 스크린 추가
+        />
+
+        <Stack.Screen
+          name="RangKing1Screen"
+          component={RangKing1Screen}
+          options={{ title: "랭킹1위" }} // DogPost 스크린 추가
+        />
+        <Stack.Screen
+          name="RangKing2Screen"
+          component={RangKing2Screen}
+          options={{ title: "랭킹2위" }} // DogPost 스크린 추가
+        />
+        <Stack.Screen
+          name="RangKing3Screen"
+          component={RangKing3Screen}
+          options={{ title: "랭킹3위" }} // DogPost 스크린 추가
         />
       </Stack.Navigator>
     </NavigationContainer>

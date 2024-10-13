@@ -57,7 +57,6 @@ const HomeScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
-        {/* 로고만 중앙에 배치 */}
         <View style={styles.logoContainer}>
           <Image
             source={require("../../assets/Logo2.png")} // 로고 경로
@@ -72,6 +71,9 @@ const HomeScreen = ({ navigation }) => {
           <Ionicons name="list" size={24} color="black" />
         </TouchableOpacity>
       </View>
+
+      {/* 검은색 선 추가 */}
+      <View style={styles.separator} />
 
       {isListVisible && (
         <View style={styles.listContainer}>
@@ -88,7 +90,6 @@ const HomeScreen = ({ navigation }) => {
       )}
 
       <ScrollView style={styles.contentContainer}>
-        {/* 로컬 이미지 추가 */}
         <View style={styles.imageContainer}>
           <Image
             source={require("../../assets/advertisement.png")}
@@ -96,7 +97,6 @@ const HomeScreen = ({ navigation }) => {
           />
         </View>
 
-        {/* 이달의 반려동물 타이틀 섹션 */}
         <View style={styles.titleSection}>
           <Image
             source={{
@@ -107,7 +107,6 @@ const HomeScreen = ({ navigation }) => {
           <Text style={styles.titleText}>반려동물 자랑하기</Text>
         </View>
 
-        {/* 첫 번째 행: DogPhoto와 CatPhoto */}
         <View style={styles.buttonRow}>
           <TouchableOpacity
             style={styles.button}
@@ -133,7 +132,6 @@ const HomeScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        {/* 이달의 반려동물 타이틀 섹션 */}
         <View style={styles.titleSection}>
           <Image
             source={{
@@ -144,13 +142,17 @@ const HomeScreen = ({ navigation }) => {
           <Text style={styles.titleText}>이달의 반려동물</Text>
         </View>
 
-        {/* 두 번째 행: RangKing1, RangKing2, RangKing3 */}
         <View style={styles.buttonRow}>
           {topPosts.map((post, index) => (
             <TouchableOpacity
               key={index}
               style={styles.button}
-              onPress={() => navigation.navigate(`RangKing${index + 1}`)}
+              onPress={() =>
+                navigation.navigate(`RangKing${index + 1}Screen`, {
+                  postId: post.id,
+                  collection: post.collection,
+                })
+              }
             >
               <Text style={styles.rankText}>{`${index + 1} 등`}</Text>
               {post.imageUri ? (
@@ -159,7 +161,7 @@ const HomeScreen = ({ navigation }) => {
                   style={styles.buttonImage}
                 />
               ) : (
-                <Text>No Image Available</Text> // 기본 텍스트 혹은 이미지
+                <Text>No Image Available</Text>
               )}
             </TouchableOpacity>
           ))}
@@ -176,7 +178,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingTop: 30,
     paddingHorizontal: 16,
-    backgroundColor: "#F8F4EC", // 배경색
+    backgroundColor: "#F8F4EC",
   },
   headerContainer: {
     flexDirection: "row",
@@ -187,14 +189,13 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     flex: 1,
-    alignItems: "center", // 로고를 중앙에 배치
+    alignItems: "center",
     marginLeft: 40,
   },
   logoImage: {
-    width: 100, // 원하는 크기 설정
-    height: 100, // 원하는 크기 설정
-    resizeMode: "contain", // 이미지가 비율에 맞게 표시되도록 설정
-    // borderRadius 속성 제거
+    width: 100,
+    height: 100,
+    resizeMode: "contain",
   },
   categoryButton: {
     padding: 8,
@@ -280,6 +281,12 @@ const styles = StyleSheet.create({
   titleText: {
     fontSize: 18,
     fontWeight: "bold",
+  },
+  separator: {
+    width: "100%",
+    height: 2,
+    backgroundColor: "black",
+    marginVertical: -5, // 상하 여백
   },
 });
 

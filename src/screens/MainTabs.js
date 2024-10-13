@@ -40,7 +40,7 @@ function MainTabs() {
       }}
     >
       <Tab.Screen
-        name="Home"
+        name="홈"
         component={HomeScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
@@ -49,7 +49,7 @@ function MainTabs() {
         }}
       />
       <Tab.Screen
-        name="Shorts"
+        name="쇼츠"
         component={ShortsScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
@@ -58,7 +58,7 @@ function MainTabs() {
         }}
       />
       <Tab.Screen
-        name="Shortsproduce"
+        name="쇼츠제작"
         component={ShortsproduceScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
@@ -67,7 +67,7 @@ function MainTabs() {
         }}
       />
       <Tab.Screen
-        name="Chat"
+        name="채팅"
         component={ChatStack}
         options={{
           tabBarIcon: ({ color, size }) => (
@@ -81,7 +81,7 @@ function MainTabs() {
       />
 
       <Tab.Screen
-        name="Profiles"
+        name="프로필"
         component={ProfilesScreen}
         options={{
           tabBarIcon: ({ color, size }) => (

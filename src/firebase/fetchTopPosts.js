@@ -12,14 +12,24 @@ export const getTopPostImages = async () => {
   dogPostsSnapshot.forEach((doc) => {
     const postData = doc.data();
     if (postData.imageUrls && postData.imageUrls.length > 0) {
-      posts.push({ id: doc.id, ...postData, imageUri: postData.imageUrls[0] });
+      posts.push({
+        id: doc.id,
+        collection: "dog_posts",
+        ...postData,
+        imageUri: postData.imageUrls[0],
+      });
     }
   });
 
   catPostsSnapshot.forEach((doc) => {
     const postData = doc.data();
     if (postData.imageUrls && postData.imageUrls.length > 0) {
-      posts.push({ id: doc.id, ...postData, imageUri: postData.imageUrls[0] });
+      posts.push({
+        id: doc.id,
+        collection: "cat_posts",
+        ...postData,
+        imageUri: postData.imageUrls[0],
+      });
     }
   });
 

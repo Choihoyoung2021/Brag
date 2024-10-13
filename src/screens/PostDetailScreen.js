@@ -194,9 +194,9 @@ const PostDetailScreen = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#ffffff" },
+  container: { flex: 1, backgroundColor: "#F8F4EC" },
   titleContainer: {
-    backgroundColor: "#ffffff",
+    backgroundColor: "#F8F4EC",
     padding: 15,
     borderRadius: 8,
     marginBottom: 20,
@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
   title: { fontSize: 24, fontWeight: "bold" },
   deleteButton: { padding: 5 },
   contentContainer: {
-    backgroundColor: "#ffffff",
+    backgroundColor: "#F8F4EC",
     padding: 15,
     borderRadius: 8,
     marginBottom: 20,
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
   imageContentContainer: { marginTop: 15, alignItems: "center" },
   contentImage: { width: 300, height: 300, marginBottom: 15, borderRadius: 10 },
   interactionContainer: {
-    backgroundColor: "#ffffff",
+    backgroundColor: "#F8F4EC",
     padding: 15,
     borderRadius: 8,
     marginBottom: 20,
