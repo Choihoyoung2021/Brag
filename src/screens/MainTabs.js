@@ -16,12 +16,16 @@ import Octicons from "@expo/vector-icons/Octicons"; // 프로필 아이콘
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
+// Shorts 스택 네비게이션
+const ShortsStack = () => (
+  <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Screen name="ShortsScreen" component={ShortsScreen} />
+  </Stack.Navigator>
+);
+
+// 채팅 스택 네비게이션
 const ChatStack = () => (
-  <Stack.Navigator
-    screenOptions={{
-      headerShown: false,
-    }}
-  >
+  <Stack.Navigator screenOptions={{ headerShown: false }}>
     <Stack.Screen name="ChatRoomsScreen" component={ChatRoomsScreen} />
     <Stack.Screen name="ChattingScreen" component={ChattingScreen} />
   </Stack.Navigator>
@@ -51,7 +55,7 @@ function MainTabs() {
       />
       <Tab.Screen
         name="쇼츠"
-        component={ShortsScreen}
+        component={ShortsStack} // Shorts 스택 네비게이션 사용
         options={{
           tabBarIcon: ({ color, size }) => (
             <AntDesign name="play" size={20} color="black" />
@@ -80,7 +84,6 @@ function MainTabs() {
           ),
         }}
       />
-
       <Tab.Screen
         name="프로필"
         component={ProfilesScreen}

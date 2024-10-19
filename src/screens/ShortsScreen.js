@@ -1,29 +1,27 @@
-// ShortsScreen.js
 import React, { useEffect, useState, useRef } from "react";
 import {
   View,
   FlatList,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
   Dimensions,
-  Platform,
+  ActivityIndicator,
+  StyleSheet,
 } from "react-native";
-import { db } from "../firebase/FirebaseConfig";
+import { Video } from "expo-av";
 import { collection, getDocs } from "firebase/firestore";
-import { Video } from "expo-av"; // Expo Video 컴포넌트 사용
+import { db } from "../firebase/FirebaseConfig"; // Firebase 설정 가져오기
 
 const { width, height } = Dimensions.get("window");
 
-const ShortsScreen = ({ navigation }) => {
+const ShortsScreen = () => {
   const [shorts, setShorts] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const videoRefs = useRef([]);
 
+  // Firebase에서 쇼츠 데이터 가져오기
   useEffect(() => {
     const fetchShorts = async () => {
       try {
-        const shortsCollection = await getDocs(collection(db, "shorts_posts")); // "shorts_posts" 컬렉션 참조
+        const shortsCollection = await getDocs(collection(db, "videos")); // 저장된 videos 컬렉션에서 데이터 가져오기
         const shortsList = shortsCollection.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
@@ -51,51 +49,59 @@ const ShortsScreen = ({ navigation }) => {
     <View style={styles.item}>
       <Video
         ref={(ref) => (videoRefs.current[index] = ref)}
-        source={{ uri: item.videoUrl }}
+        source={{ uri: item.videoUrl }} // Firebase에서 가져온 비디오 URL
         rate={1.0}
         volume={1.0}
         isMuted={false}
         resizeMode="cover"
-        shouldPlay={currentIndex === index}
+        shouldPlay={currentIndex === index} // 현재 화면에 보이는 비디오만 재생
         isLooping
         style={styles.video}
+        onError={(error) => console.log("비디오 로드 오류:", error)}
       />
-      <Text style={styles.title}>{item.title}</Text>
     </View>
   );
 
   useEffect(() => {
-    // 이전 비디오 일시정지
+    // 이전 비디오를 일시 정지하고 현재 비디오를 재생
     videoRefs.current.forEach((video, index) => {
-      if (video && index !== currentIndex) {
-        video.pauseAsync();
-      } else if (video && index === currentIndex) {
-        video.playAsync();
+      if (video) {
+        if (index === currentIndex) {
+          video.playAsync();
+        } else {
+          video.pauseAsync();
+        }
       }
     });
   }, [currentIndex]);
 
+  if (!shorts.length) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#fff" />
+      </View>
+    );
+  }
+
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={shorts}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        pagingEnabled // 페이지별 스크롤
-        vertical // 세로 스크롤
-        showsVerticalScrollIndicator={false} // 스크롤 인디케이터 숨기기
-        onViewableItemsChanged={onViewableItemsChanged}
-        viewabilityConfig={viewConfigRef}
-      />
-    </View>
+    <FlatList
+      data={shorts}
+      renderItem={renderItem}
+      keyExtractor={(item) => item.id}
+      pagingEnabled // 페이지별 스크롤
+      vertical // 세로 스크롤
+      showsVerticalScrollIndicator={false} // 스크롤 인디케이터 숨기기
+      onViewableItemsChanged={onViewableItemsChanged}
+      viewabilityConfig={viewConfigRef}
+      windowSize={2}
+      initialNumToRender={1} // 초기 렌더링할 항목 수
+      maxToRenderPerBatch={1} // 한 번에 렌더링할 항목 수
+      removeClippedSubviews
+    />
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#000", // 배경을 검은색으로 변경
-  },
   item: {
     width: width,
     height: height,
@@ -105,15 +111,13 @@ const styles = StyleSheet.create({
   },
   video: {
     width: width,
-    height: height * 0.8, // 화면의 80% 높이
+    height: height,
   },
-  title: {
-    color: "#fff",
-    position: "absolute",
-    bottom: 50,
-    left: 20,
-    fontSize: 18,
-    fontWeight: "bold",
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: "#000",
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 
