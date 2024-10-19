@@ -124,12 +124,12 @@ const ProfilesScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#ffffff",
+    backgroundColor: "#F8F4EC",
   },
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: "#ffffff",
+    backgroundColor: "#F8F4EC",
   },
   header: {
     flexDirection: "row",

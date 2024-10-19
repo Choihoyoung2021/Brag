@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between", // 버튼을 양쪽에 배치
     padding: 10,
-    backgroundColor: "#fff",
+    backgroundColor: "#F8F4EC",
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
   },
