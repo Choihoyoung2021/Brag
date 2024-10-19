@@ -165,7 +165,7 @@ const AddPostScreen = ({ navigation, route }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#ffffff" },
+  container: { flex: 1, padding: 20, backgroundColor: "#F8F4EC" },
   label: { fontSize: 16, fontWeight: "bold", marginBottom: 10 },
   input: {
     height: 40,

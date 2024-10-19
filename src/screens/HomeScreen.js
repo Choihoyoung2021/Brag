@@ -59,7 +59,7 @@ const HomeScreen = ({ navigation }) => {
       <View style={styles.headerContainer}>
         <View style={styles.logoContainer}>
           <Image
-            source={require("../../assets/Logo2.png")} // 로고 경로
+            source={require("../../assets/logo2.png")} // 로고 경로
             style={styles.logoImage}
           />
         </View>

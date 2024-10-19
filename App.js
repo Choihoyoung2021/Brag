@@ -1,3 +1,4 @@
+// App.js
 import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
@@ -21,6 +22,8 @@ import PhotoAddScreen from "./src/screens/category/writingScreen/PhotoAddScreen"
 import RangKing1Screen from "./src/screens/RanKing1Screen";
 import RangKing2Screen from "./src/screens/RanKing2Screen";
 import RangKing3Screen from "./src/screens/RanKing3Screen";
+import ShortsproduceScreen from "./src/screens/ShortsproduceScreen";
+
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -133,6 +136,11 @@ export default function App() {
           name="RangKing3Screen"
           component={RangKing3Screen}
           options={{ title: "랭킹3위" }} // DogPost 스크린 추가
+        />
+        <Stack.Screen
+          name="ShortsproduceScreen"
+          component={ShortsproduceScreen}
+          options={{ title: "쇼츠 제작" }}
         />
       </Stack.Navigator>
     </NavigationContainer>

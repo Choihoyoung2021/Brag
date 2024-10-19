@@ -36,6 +36,7 @@ function MainTabs() {
         tabBarInactiveTintColor: "black",
         tabBarStyle: {
           display: "flex",
+          backgroundColor: "#F8F4EC",
         },
       }}
     >
