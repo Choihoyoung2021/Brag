@@ -1,3 +1,5 @@
+// ShortsScreen.js
+
 import React, { useEffect, useState, useRef } from "react";
 import {
   View,
@@ -21,7 +23,7 @@ const ShortsScreen = () => {
   useEffect(() => {
     const fetchShorts = async () => {
       try {
-        const shortsCollection = await getDocs(collection(db, "videos")); // 저장된 videos 컬렉션에서 데이터 가져오기
+        const shortsCollection = await getDocs(collection(db, "shorts_posts")); // 저장된 videos 컬렉션에서 데이터 가져오기
         const shortsList = shortsCollection.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),

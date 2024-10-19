@@ -21,7 +21,7 @@ const ShortsproduceScreen = ({ navigation }) => {
       const userName = user.displayName || "익명"; // 닉네임이 없으면 '익명'으로 설정
 
       // Firestore의 videos 컬렉션에 비디오 정보 추가
-      await addDoc(collection(db, "videos"), {
+      await addDoc(collection(db, "shorts_posts"), {
         videoUrl: downloadURL,
         uid: user.uid, // 사용자 uid 저장
         userName: userName, // 사용자 닉네임 저장

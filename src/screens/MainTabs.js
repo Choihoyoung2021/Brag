@@ -12,6 +12,8 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons"; // 홈 아이콘
 import AntDesign from "@expo/vector-icons/AntDesign"; // 쇼츠 아이콘
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons"; // 채팅 아이콘
 import Octicons from "@expo/vector-icons/Octicons"; // 프로필 아이콘
+import AddFriendScreen from "./AddFriendScreen";
+import FriendListScreen from "./FriendListScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -28,6 +30,8 @@ const ChatStack = () => (
   <Stack.Navigator screenOptions={{ headerShown: false }}>
     <Stack.Screen name="ChatRoomsScreen" component={ChatRoomsScreen} />
     <Stack.Screen name="ChattingScreen" component={ChattingScreen} />
+    <Stack.Screen name="AddFriendScreen" component={AddFriendScreen} />
+    <Stack.Screen name="FriendListScreen" component={FriendListScreen} />
   </Stack.Navigator>
 );
 
