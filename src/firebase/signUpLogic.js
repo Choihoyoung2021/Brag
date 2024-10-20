@@ -1,3 +1,5 @@
+//singUpLogic.js
+
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth"; // Firebase Auth import
 import {
   collection,
@@ -40,12 +42,13 @@ export const signUpUser = async ({ userId, userName, password }) => {
     const user = userCredential.user;
 
     // Firestore에 사용자 정보 저장 (비밀번호는 제외)
-    const userDocRef = doc(usersCollection, userName); // 닉네임을 문서 ID로 사용
+    const userDocRef = doc(usersCollection, user.uid); // 닉네임을 문서 ID로 사용
     await setDoc(userDocRef, {
       user_id: userId,
       user_name: userName,
       uid: user.uid, // Firebase Auth에서 생성된 사용자 UID 저장
       created_at: new Date(),
+      friends: [], // 친구 목록 초기화
     });
 
     console.log("User signed up successfully with Firebase Auth!");

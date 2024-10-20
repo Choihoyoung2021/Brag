@@ -16,6 +16,169 @@ import {
 import { db } from "./FirebaseConfig";
 import { getAuth } from "firebase/auth";
 
+// 채팅방 가져오기 또는 생성하기
+export const getOrCreateChatRoom = async (uid1, uid2) => {
+  try {
+    const chatsCollection = collection(db, "chats");
+
+    // 두 사용자의 uid 배열을 정렬하여 참가자 순서를 고정
+    const sortedParticipants = [uid1, uid2].sort();
+
+    // 두 사용자가 참가하는 채팅방을 찾기 위해, 'array-contains' 한 번만 사용
+    const chatQuery = query(
+      chatsCollection,
+      where("participants", "array-contains", sortedParticipants[0])
+    );
+
+    const querySnapshot = await getDocs(chatQuery);
+
+    // 쿼리 결과에서 participants 배열이 정확히 일치하는 채팅방을 찾아야 함
+    const existingRoom = querySnapshot.docs.find((doc) => {
+      const participants = doc.data().participants;
+      return (
+        participants.length === sortedParticipants.length &&
+        sortedParticipants.every((uid) => participants.includes(uid))
+      );
+    });
+
+    if (existingRoom) {
+      return existingRoom.id;
+    } else {
+      // 채팅방이 없으면 새로 생성
+      const newChatRef = await addDoc(chatsCollection, {
+        participants: sortedParticipants,
+        createdAt: new Date(),
+        lastMessage: "",
+      });
+      return newChatRef.id;
+    }
+  } catch (error) {
+    console.error("채팅방 가져오기 또는 생성하기 오류:", error);
+    throw error;
+  }
+};
+
+// 채팅방 목록 가져오기
+export const getChatRooms = async (uid) => {
+  try {
+    const chatsCollection = collection(db, "chats");
+    const chatQuery = query(
+      chatsCollection,
+      where("participants", "array-contains", uid),
+      orderBy("createdAt", "desc")
+    );
+
+    const querySnapshot = await getDocs(chatQuery);
+    return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    console.error("채팅방 목록 가져오기 오류:", error);
+    return [];
+  }
+};
+
+// 특정 uid를 통해 user 정보 가져오기 함수
+export const getUserByUid = async (uid) => {
+  try {
+    const usersCollection = collection(db, "users");
+    const usersQuery = query(usersCollection, where("uid", "==", uid));
+    const usersSnapshot = await getDocs(usersQuery);
+
+    if (!usersSnapshot.empty) {
+      return usersSnapshot.docs[0].data();
+    } else {
+      throw new Error("사용자를 찾을 수 없습니다.");
+    }
+  } catch (error) {
+    console.error("사용자 가져오기 오류:", error);
+    return null;
+  }
+};
+
+// 친구 요청 가져오기 함수
+export const getIncomingFriendRequests = async () => {
+  try {
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (!user) throw new Error("로그인된 사용자가 없습니다.");
+
+    const friendRequestsQuery = query(
+      collection(db, "friend_requests"),
+      where("to_uid", "==", user.uid)
+    );
+
+    const snapshot = await getDocs(friendRequestsQuery);
+    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    console.error("친구 요청 가져오기 오류:", error);
+    return [];
+  }
+};
+
+// 친구 요청 수락 함수
+export const acceptFriendRequest = async (requestId) => {
+  try {
+    const requestRef = doc(db, "friend_requests", requestId);
+    const requestSnap = await getDoc(requestRef);
+
+    if (!requestSnap.exists())
+      throw new Error("친구 요청이 존재하지 않습니다.");
+
+    const requestData = requestSnap.data();
+    const { from_uid, to_uid } = requestData;
+
+    // 각 사용자 문서 참조
+    const fromUserRef = doc(db, "users", from_uid);
+    const toUserRef = doc(db, "users", to_uid);
+
+    // 친구 목록 업데이트
+    await updateDoc(fromUserRef, {
+      friends: arrayUnion(to_uid),
+    });
+
+    await updateDoc(toUserRef, {
+      friends: arrayUnion(from_uid),
+    });
+
+    // 친구 요청 삭제
+    await deleteDoc(requestRef);
+  } catch (error) {
+    console.error("친구 요청 수락 오류:", error);
+    throw error;
+  }
+};
+// 친구 목록 가져오기 함수
+export const getFriendsList = async () => {
+  try {
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (!user) throw new Error("로그인된 사용자가 없습니다.");
+
+    // 사용자 문서를 user.uid로 직접 참조
+    const userDocRef = doc(db, "users", user.uid);
+    const userDocSnap = await getDoc(userDocRef);
+
+    if (!userDocSnap.exists()) {
+      console.log("사용자 정보가 존재하지 않습니다.");
+      return []; // 친구 목록이 없는 경우 빈 배열 반환
+    }
+
+    const userData = userDocSnap.data();
+    const friendsUids = userData.friends || []; // 친구 목록이 없으면 빈 배열로 처리
+
+    if (friendsUids.length === 0) return []; // 친구 목록이 없으면 빈 배열 반환
+
+    const friendsDataPromises = friendsUids.map((uid) => getUserByUid(uid));
+    const friendsData = await Promise.all(friendsDataPromises);
+
+    return friendsData.filter((friend) => friend !== null);
+  } catch (error) {
+    console.error("친구 목록 가져오기 오류:", error);
+    return []; // 오류 발생 시에도 빈 배열 반환
+  }
+};
+
 // 특정 uid를 통해 user_name 가져오기 함수
 const getUserNameByUid = async (uid) => {
   try {

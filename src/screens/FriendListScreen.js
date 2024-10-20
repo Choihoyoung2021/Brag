@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -12,39 +12,35 @@ import {
   ActionSheetIOS,
   Platform,
 } from "react-native";
-
-const friendsData = [
-  {
-    id: "1",
-    name: "Adam N. Mathew",
-    avatar: "https://randomuser.me/api/portraits/men/1.jpg",
-    selected: true,
-  },
-  {
-    id: "2",
-    name: "Albert Wilson",
-    avatar: "https://randomuser.me/api/portraits/men/2.jpg",
-    selected: false,
-  },
-  {
-    id: "3",
-    name: "Andrew McLeod",
-    avatar: "https://randomuser.me/api/portraits/men/3.jpg",
-    selected: false,
-  },
-  {
-    id: "4",
-    name: "Brittany Smith",
-    avatar: "https://randomuser.me/api/portraits/women/1.jpg",
-    selected: false,
-  },
-];
+import { useNavigation } from "@react-navigation/native";
+import {
+  getFriendsList,
+  getOrCreateChatRoom,
+} from "../firebase/firestoreService"; // getOrCreateChatRoom 추가
+import { getAuth } from "firebase/auth";
 
 const FriendListScreen = () => {
-  const [selectedFriend, setSelectedFriend] = useState(null);
+  const [friends, setFriends] = useState([]);
+  const [searchText, setSearchText] = useState("");
+  const navigation = useNavigation();
+  const auth = getAuth();
+  const user = auth.currentUser;
+
+  useEffect(() => {
+    const fetchFriends = async () => {
+      try {
+        const friendsData = await getFriendsList();
+        setFriends(friendsData);
+      } catch (error) {
+        console.error("친구 목록 가져오기 오류:", error);
+        Alert.alert("오류", "친구 목록을 가져오는 중 오류가 발생했습니다.");
+      }
+    };
+
+    fetchFriends();
+  }, []);
 
   const handleFriendPress = (friend) => {
-    setSelectedFriend(friend);
     if (Platform.OS === "ios") {
       ActionSheetIOS.showActionSheetWithOptions(
         {
@@ -61,10 +57,9 @@ const FriendListScreen = () => {
         }
       );
     } else {
-      // Android에서는 Alert을 사용
       Alert.alert(
         "옵션 선택",
-        `${friend.name}님에게 할 작업을 선택하세요.`,
+        `${friend.user_name}님에게 할 작업을 선택하세요.`,
         [
           { text: "메세지 보내기", onPress: () => sendMessage(friend) },
           { text: "프로필 보기", onPress: () => viewProfile(friend) },
@@ -75,12 +70,22 @@ const FriendListScreen = () => {
     }
   };
 
-  const sendMessage = (friend) => {
-    Alert.alert("메세지 보내기", `${friend.name}에게 메세지를 보냅니다.`);
+  const sendMessage = async (friend) => {
+    try {
+      const roomId = await getOrCreateChatRoom(user.uid, friend.uid);
+      navigation.navigate("ChattingScreen", {
+        roomId,
+        participants: [user.uid, friend.uid],
+      });
+    } catch (error) {
+      console.error("채팅방 생성 오류:", error);
+      Alert.alert("오류", "채팅방을 생성하는 중 오류가 발생했습니다.");
+    }
   };
 
   const viewProfile = (friend) => {
-    Alert.alert("프로필 보기", `${friend.name}의 프로필을 확인합니다.`);
+    Alert.alert("프로필 보기", `${friend.user_name}의 프로필을 확인합니다.`);
+    // 여기서 프로필 보기 화면으로 네비게이션할 수 있습니다.
   };
 
   const renderItem = ({ item }) => (
@@ -88,9 +93,14 @@ const FriendListScreen = () => {
       style={styles.friendItem}
       onPress={() => handleFriendPress(item)}
     >
-      <Image source={{ uri: item.avatar }} style={styles.avatar} />
+      <Image
+        source={{
+          uri: item.avatar || "https://randomuser.me/api/portraits/men/1.jpg",
+        }}
+        style={styles.avatar}
+      />
       <View style={styles.infoContainer}>
-        <Text style={styles.name}>{item.name}</Text>
+        <Text style={styles.name}>{item.user_name}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -99,15 +109,34 @@ const FriendListScreen = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerText}>친구목록</Text>
-        <Text style={styles.subHeaderText}>4명</Text>
+        <Text style={styles.subHeaderText}>{friends.length}명</Text>
+        <TouchableOpacity
+          style={styles.newFriendButton}
+          onPress={() => navigation.navigate("NewFriendRequestsScreen")}
+        >
+          <Text style={styles.newFriendButtonText}>새 친구</Text>
+        </TouchableOpacity>
       </View>
-      <TextInput style={styles.searchInput} placeholder="Search by names" />
-      <FlatList
-        data={friendsData}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        style={styles.list}
+      <TextInput
+        style={styles.searchInput}
+        placeholder="Search by names"
+        value={searchText}
+        onChangeText={setSearchText}
       />
+      {friends.length === 0 ? (
+        <View style={styles.noFriends}>
+          <Text>친구가 없습니다.</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={friends.filter((friend) =>
+            friend.user_name.toLowerCase().includes(searchText.toLowerCase())
+          )}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.uid} // uid는 유니크해야 합니다.
+          style={styles.list}
+        />
+      )}
     </SafeAreaView>
   );
 };
@@ -120,6 +149,9 @@ const styles = StyleSheet.create({
   header: {
     padding: 20,
     backgroundColor: "#F8F4EC",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   headerText: {
     fontSize: 24,
@@ -159,6 +191,21 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 16,
     fontWeight: "bold",
+  },
+  newFriendButton: {
+    backgroundColor: "#007BFF",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+  },
+  newFriendButtonText: {
+    color: "#fff",
+    fontSize: 16,
+  },
+  noFriends: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 

@@ -1,56 +1,113 @@
-import React, { useState, useRef, useEffect } from "react";
+// ChattingScreen.js
+
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
   FlatList,
+  StyleSheet,
   KeyboardAvoidingView,
   Platform,
-  Keyboard,
-  TouchableWithoutFeedback,
-  SafeAreaView, // SafeAreaView 추가
+  SafeAreaView,
+  Image, // Image 임포트 추가
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons"; // 아이콘 추가
-import { useNavigation } from "@react-navigation/native"; // navigation 사용
+import { Ionicons } from "@expo/vector-icons";
+import { db } from "../firebase/FirebaseConfig"; // Firebase 설정
+import {
+  collection,
+  addDoc,
+  query,
+  onSnapshot,
+  orderBy,
+  doc,
+  getDoc,
+  updateDoc,
+} from "firebase/firestore";
+import { getAuth } from "firebase/auth";
+import { getUserByUid } from "../firebase/firestoreService"; // 상대방 정보 가져오기
 
-const ChattingScreen = ({ route }) => {
-  const { roomId } = route.params; // 전달된 roomId 확인
-  const navigation = useNavigation(); // navigation 훅 사용
+const ChattingScreen = ({ route, navigation }) => {
+  const { roomId, participants } = route.params;
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState([
-    { id: "1", text: "안녕하세요!", sender: "other" },
-    { id: "2", text: "안녕하세요! 반갑습니다!", sender: "self" },
-  ]);
-
+  const [messages, setMessages] = useState([]);
+  const [otherUser, setOtherUser] = useState(null);
   const flatListRef = useRef(null);
+  const auth = getAuth();
+  const user = auth.currentUser;
 
-  const handleSend = () => {
-    if (message.trim()) {
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        {
-          id: (prevMessages.length + 1).toString(),
-          text: message,
-          sender: "self",
-        },
-      ]);
+  useEffect(() => {
+    if (!participants || !Array.isArray(participants)) {
+      Alert.alert("오류", "참가자 정보가 올바르지 않습니다.");
+      navigation.goBack();
+      return;
+    }
+
+    if (!user) {
+      Alert.alert("오류", "로그인된 사용자가 없습니다.");
+      navigation.navigate("LoginScreen"); // 로그인 화면으로 이동
+      return;
+    }
+
+    const fetchOtherUser = async () => {
+      const otherUid = participants.find((uid) => uid !== user.uid);
+      if (otherUid) {
+        const userData = await getUserByUid(otherUid);
+        setOtherUser(userData);
+      }
+    };
+
+    fetchOtherUser();
+  }, [participants, user]);
+
+  // 실시간으로 메시지 가져오기
+  useEffect(() => {
+    if (!roomId) return;
+
+    const messagesQuery = query(
+      collection(db, "chats", roomId, "messages"),
+      orderBy("createdAt", "asc")
+    );
+    const unsubscribe = onSnapshot(messagesQuery, (snapshot) => {
+      const newMessages = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setMessages(newMessages);
+    });
+    return () => unsubscribe();
+  }, [roomId]);
+
+  const sendMessage = async () => {
+    if (message.trim() === "") return;
+
+    try {
+      await addDoc(collection(db, "chats", roomId, "messages"), {
+        text: message,
+        senderUid: user.uid,
+        createdAt: new Date(),
+      });
+
+      // 채팅방의 마지막 메시지 업데이트
+      const chatRoomRef = doc(db, "chats", roomId);
+      await updateDoc(chatRoomRef, {
+        lastMessage: message,
+        updatedAt: new Date(),
+      });
+
       setMessage("");
+    } catch (error) {
+      console.error("메시지 전송 오류:", error);
+      Alert.alert("오류", "메시지를 전송하는 중 오류가 발생했습니다.");
     }
   };
 
-  useEffect(() => {
-    if (flatListRef.current) {
-      flatListRef.current.scrollToEnd({ animated: true });
-    }
-  }, [messages]);
-
-  const renderMessage = ({ item }) => (
+  const renderItem = ({ item }) => (
     <View
       style={[
         styles.messageContainer,
-        item.sender === "self" ? styles.selfMessage : styles.otherMessage,
+        item.senderUid === user.uid ? styles.selfMessage : styles.otherMessage,
       ]}
     >
       <Text style={styles.messageText}>{item.text}</Text>
@@ -63,106 +120,77 @@ const ChattingScreen = ({ route }) => {
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={styles.inner}>
-            {/* 뒤로가기 버튼 */}
-            <View style={styles.header}>
-              <TouchableOpacity onPress={() => navigation.goBack()}>
-                <Ionicons name="arrow-back" size={24} color="black" />
-              </TouchableOpacity>
-              <Text style={styles.headerText}>채팅방</Text>
-            </View>
-
-            <FlatList
-              ref={flatListRef}
-              data={messages}
-              renderItem={renderMessage}
-              keyExtractor={(item) => item.id}
-              contentContainerStyle={styles.messagesContainer}
-              style={styles.messagesList}
-            />
-            <View style={styles.inputContainer}>
-              <TextInput
-                style={styles.input}
-                value={message}
-                onChangeText={setMessage}
-                placeholder="메시지를 입력하세요..."
-                onSubmitEditing={handleSend}
+        <View style={styles.header}>
+          {otherUser && (
+            <View style={styles.headerInfo}>
+              <Image
+                source={{
+                  uri:
+                    otherUser.avatar ||
+                    "https://randomuser.me/api/portraits/men/1.jpg",
+                }}
+                style={styles.headerAvatar}
               />
-              <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
-                <Text style={styles.sendButtonText}>전송</Text>
-              </TouchableOpacity>
+              <Text style={styles.headerName}>{otherUser.user_name}</Text>
             </View>
-          </View>
-        </TouchableWithoutFeedback>
+          )}
+        </View>
+        <FlatList
+          ref={flatListRef}
+          data={messages}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id}
+          onContentSizeChange={() => flatListRef.current.scrollToEnd()}
+        />
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            value={message}
+            onChangeText={setMessage}
+            placeholder="메시지를 입력하세요..."
+          />
+          <TouchableOpacity onPress={sendMessage}>
+            <Ionicons name="send" size={24} color="blue" />
+          </TouchableOpacity>
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
 
-// 스타일 정의
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "#f9f9f9", // SafeAreaView 스타일
-  },
-  container: {
-    flex: 1,
-  },
-  inner: {
-    flex: 1,
-  },
+  safeArea: { flex: 1, backgroundColor: "#F8F4EC" },
+  container: { flex: 1 },
   header: {
+    padding: 10,
+    backgroundColor: "#F8F4EC",
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
+  },
+  headerInfo: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 10,
-    backgroundColor: "#f9f9f9",
-    paddingTop: Platform.OS === "android" ? 20 : 0, // Android용 스테이터스바 공간 추가
   },
-  headerText: {
-    fontSize: 20,
+  headerAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 10,
+  },
+  headerName: {
+    fontSize: 18,
     fontWeight: "bold",
-    marginLeft: 10,
   },
-  messagesContainer: {
-    padding: 10,
-    flexGrow: 1,
-  },
-  messagesList: {
-    flex: 1,
-  },
-  messageContainer: {
-    marginBottom: 10,
-    padding: 10,
-    borderRadius: 8,
-    maxWidth: "80%",
-  },
-  selfMessage: {
-    backgroundColor: "#007bff",
-    alignSelf: "flex-end",
-  },
-  otherMessage: {
-    backgroundColor: "#fff",
-    alignSelf: "flex-start",
-    borderColor: "#ddd",
-    borderWidth: 1,
-    marginTop: 10, // 상대 메시지에 마진 추가
-  },
-  messageText: {
-    fontSize: 16,
-    color: "#fff",
-  },
+  messageContainer: { padding: 10, marginVertical: 5, borderRadius: 10 },
+  selfMessage: { alignSelf: "flex-end", backgroundColor: "#D8D8D8" },
+  otherMessage: { alignSelf: "flex-start", backgroundColor: "#D8D8D8" },
+  messageText: { color: "#000000" },
   inputContainer: {
     flexDirection: "row",
-    alignItems: "center",
     padding: 10,
-    backgroundColor: "#fff",
+    backgroundColor: "#F8F4EC",
     borderTopWidth: 1,
     borderTopColor: "#ddd",
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
   },
   input: {
     flex: 1,
@@ -170,20 +198,6 @@ const styles = StyleSheet.create({
     borderColor: "#ddd",
     borderRadius: 20,
     padding: 10,
-    fontSize: 16,
-    backgroundColor: "#f9f9f9",
-  },
-  sendButton: {
-    backgroundColor: "#007bff",
-    borderRadius: 20,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    marginLeft: 10,
-  },
-  sendButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
   },
 });
 

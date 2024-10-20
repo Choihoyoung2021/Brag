@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+// ChattingRoomScreen.js
+
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,72 +10,82 @@ import {
   StyleSheet,
   SafeAreaView,
   Button,
+  Alert,
 } from "react-native";
-import AddFriendModal from "./AddFriendScreen"; // 새로 만든 모달 추가
+import AddFriendScreen from "./AddFriendScreen"; // 새로 만든 모달 추가
+import { getChatRooms } from "../firebase/firestoreService"; // getChatRooms 함수 추가
+import { getAuth } from "firebase/auth";
 
 const ChattingRoomScreen = ({ navigation }) => {
+  const [chatRooms, setChatRooms] = useState([]);
   const [isAddFriendModalVisible, setAddFriendModalVisible] = useState(false);
+  const auth = getAuth();
+  const user = auth.currentUser;
 
-  const chatRooms = [
-    {
-      id: "1",
-      name: "Shane Martinez",
-      message: "On my way home but I needed to stop by the book store to...",
-      time: "5 min",
-      avatar: "https://randomuser.me/api/portraits/men/1.jpg",
-      unreadCount: 1,
-    },
-    {
-      id: "2",
-      name: "Katie Keller",
-      message: "I'm watching Friends. What are you doing?",
-      time: "15 min",
-      avatar: "https://randomuser.me/api/portraits/women/2.jpg",
-      unreadCount: 0,
-    },
-    {
-      id: "3",
-      name: "Stephen Mann",
-      message: "I'm working now. I'm making a deposit for our company.",
-      time: "1 hour",
-      avatar: "https://randomuser.me/api/portraits/men/3.jpg",
-      unreadCount: 0,
-    },
-    {
-      id: "4",
-      name: "Shane Martinez",
-      message:
-        "I really find the subject very interesting. I'm enjoying all my...",
-      time: "5 hours",
-      avatar: "https://randomuser.me/api/portraits/men/4.jpg",
-      unreadCount: 0,
-    },
-  ];
+  useEffect(() => {
+    if (!user) {
+      Alert.alert("오류", "로그인된 사용자가 없습니다.");
+      navigation.navigate("LoginScreen"); // 로그인 화면으로 이동
+      return;
+    }
 
-  const handleRoomSelect = (roomId) => {
-    navigation.navigate("ChattingScreen", { roomId });
+    const fetchChatRooms = async () => {
+      try {
+        const rooms = await getChatRooms(user.uid);
+        setChatRooms(rooms);
+      } catch (error) {
+        console.error("채팅방 목록 가져오기 오류:", error);
+        // 오류는 콘솔에만 기록하고, Alert는 표시하지 않음
+        setChatRooms([]);
+      }
+    };
+
+    fetchChatRooms();
+  }, [user]);
+
+  const handleRoomSelect = (roomId, participants) => {
+    navigation.navigate("ChattingScreen", { roomId, participants });
   };
 
-  const renderRoom = ({ item }) => (
-    <TouchableOpacity
-      style={styles.roomContainer}
-      onPress={() => handleRoomSelect(item.id)}
-    >
-      <Image source={{ uri: item.avatar }} style={styles.avatar} />
-      <View style={styles.textContainer}>
-        <View style={styles.nameTimeContainer}>
-          <Text style={styles.name}>{item.name}</Text>
-          <Text style={styles.time}>{item.time}</Text>
+  const renderRoom = ({ item }) => {
+    if (!item.participants) {
+      return null; // participants가 없으면 렌더링하지 않음
+    }
+
+    // 현재 사용자 외의 참가자 정보 가져오기
+    const otherParticipantUid = item.participants.find(
+      (uid) => uid !== user.uid
+    );
+
+    if (!otherParticipantUid) {
+      return null; // 다른 참가자가 없으면 렌더링하지 않음
+    }
+
+    return (
+      <TouchableOpacity
+        style={styles.roomContainer}
+        onPress={() => handleRoomSelect(item.id, item.participants)}
+      >
+        <Image
+          source={{
+            uri: "https://randomuser.me/api/portraits/men/1.jpg", // 실제로는 상대방의 avatar를 가져와야 합니다.
+          }}
+          style={styles.avatar}
+        />
+        <View style={styles.textContainer}>
+          <View style={styles.nameTimeContainer}>
+            <Text style={styles.name}>상대방 이름</Text>
+            <Text style={styles.time}>
+              {item.lastMessage ? item.lastMessage : "최근 메시지 없음"}
+            </Text>
+          </View>
+          <Text style={styles.message}>
+            {item.lastMessage || "메시지가 없습니다."}
+          </Text>
         </View>
-        <Text style={styles.message}>{item.message}</Text>
-      </View>
-      {item.unreadCount > 0 && (
-        <View style={styles.unreadBadge}>
-          <Text style={styles.unreadText}>{item.unreadCount}</Text>
-        </View>
-      )}
-    </TouchableOpacity>
-  );
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -90,14 +102,20 @@ const ChattingRoomScreen = ({ navigation }) => {
       </View>
 
       {/* 채팅방 목록 */}
-      <FlatList
-        data={chatRooms}
-        renderItem={renderRoom}
-        keyExtractor={(item) => item.id}
-      />
+      {chatRooms.length === 0 ? (
+        <View style={styles.noChatRooms}>
+          <Text>채팅방이 없습니다. 친구를 추가하고 메시지를 보내보세요!</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={chatRooms}
+          renderItem={renderRoom}
+          keyExtractor={(item) => item.id}
+        />
+      )}
 
       {/* 친구추가 모달 */}
-      <AddFriendModal
+      <AddFriendScreen
         visible={isAddFriendModalVisible}
         onClose={() => setAddFriendModalVisible(false)}
       />
@@ -154,17 +172,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#666",
   },
-  unreadBadge: {
-    backgroundColor: "#007bff",
-    borderRadius: 12,
-    width: 24,
-    height: 24,
+  noChatRooms: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
-  },
-  unreadText: {
-    color: "#fff",
-    fontWeight: "bold",
   },
 });
 

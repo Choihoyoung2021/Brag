@@ -14,6 +14,7 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons"; 
 import Octicons from "@expo/vector-icons/Octicons"; // 프로필 아이콘
 import AddFriendScreen from "./AddFriendScreen";
 import FriendListScreen from "./FriendListScreen";
+import NewFriendRequestsScreen from "./NewFriendRequestsScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -32,6 +33,10 @@ const ChatStack = () => (
     <Stack.Screen name="ChattingScreen" component={ChattingScreen} />
     <Stack.Screen name="AddFriendScreen" component={AddFriendScreen} />
     <Stack.Screen name="FriendListScreen" component={FriendListScreen} />
+    <Stack.Screen
+      name="NewFriendRequestsScreen"
+      component={NewFriendRequestsScreen}
+    />
   </Stack.Navigator>
 );
 
