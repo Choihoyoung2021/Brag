@@ -23,6 +23,7 @@ import RangKing1Screen from "./src/screens/RanKing1Screen";
 import RangKing2Screen from "./src/screens/RanKing2Screen";
 import RangKing3Screen from "./src/screens/RanKing3Screen";
 import ShortsproduceScreen from "./src/screens/ShortsproduceScreen";
+import ShortsPlayer from "./src/screens/ShortsPlayer";
 
 const Stack = createStackNavigator();
 
@@ -141,6 +142,11 @@ export default function App() {
           name="ShortsproduceScreen"
           component={ShortsproduceScreen}
           options={{ title: "쇼츠 제작" }}
+        />
+        <Stack.Screen
+          name="ShortsPlayer"
+          component={ShortsPlayer}
+          options={{ title: "쇼츠 재생" }}
         />
       </Stack.Navigator>
     </NavigationContainer>

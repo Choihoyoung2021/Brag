@@ -359,7 +359,8 @@ export const addComment = async (
   postId,
   commentText,
   isDogPost = false,
-  isCatPost = false
+  isCatPost = false,
+  isShortsPost = false
 ) => {
   try {
     const auth = getAuth();
@@ -370,6 +371,7 @@ export const addComment = async (
     let collectionName = "posts";
     if (isDogPost) collectionName = "dog_posts";
     if (isCatPost) collectionName = "cat_posts";
+    if (isShortsPost) collectionName = "shorts_posts";
 
     const userName = await getUserNameByUid(user.uid);
     const commentCollection = collection(
@@ -394,12 +396,14 @@ export const addComment = async (
 export const getComments = async (
   postId,
   isDogPost = false,
-  isCatPost = false
+  isCatPost = false,
+  isShortsPost = false
 ) => {
   try {
     let collectionName = "posts";
     if (isDogPost) collectionName = "dog_posts";
     if (isCatPost) collectionName = "cat_posts";
+    if (isShortsPost) collectionName = "shorts_posts";
 
     const commentsCollection = collection(
       db,
@@ -423,7 +427,8 @@ export const getComments = async (
 export const toggleLikePost = async (
   postId,
   isDogPost = false,
-  isCatPost = false
+  isCatPost = false,
+  isShortsPost = false
 ) => {
   try {
     const auth = getAuth();
@@ -434,6 +439,7 @@ export const toggleLikePost = async (
     let collectionName = "posts";
     if (isDogPost) collectionName = "dog_posts";
     if (isCatPost) collectionName = "cat_posts";
+    if (isShortsPost) collectionName = "shorts_posts";
 
     const postRef = doc(db, collectionName, postId);
     const postSnap = await getDoc(postRef);
@@ -484,12 +490,14 @@ export const getLikesData = async (
 export const getLikesCount = async (
   postId,
   isDogPost = false,
-  isCatPost = false
+  isCatPost = false,
+  isShortsPost = false
 ) => {
   try {
     let collectionName = "posts";
     if (isDogPost) collectionName = "dog_posts";
     if (isCatPost) collectionName = "cat_posts";
+    if (isShortsPost) collectionName = "shorts_posts";
 
     const postRef = doc(db, collectionName, postId);
     const postSnap = await getDoc(postRef);
