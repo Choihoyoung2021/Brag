@@ -13,11 +13,12 @@ import {
   Alert,
 } from "react-native";
 import AddFriendScreen from "./AddFriendScreen"; // 새로 만든 모달 추가
-import { getChatRooms } from "../firebase/firestoreService"; // getChatRooms 함수 추가
+import { getChatRooms, getUserByUid } from "../firebase/firestoreService"; // getChatRooms와 getUserByUid 함수 추가
 import { getAuth } from "firebase/auth";
 
 const ChattingRoomScreen = ({ navigation }) => {
   const [chatRooms, setChatRooms] = useState([]);
+  const [nicknames, setNicknames] = useState({}); // 각 참가자의 닉네임을 저장할 상태
   const [isAddFriendModalVisible, setAddFriendModalVisible] = useState(false);
   const auth = getAuth();
   const user = auth.currentUser;
@@ -33,10 +34,25 @@ const ChattingRoomScreen = ({ navigation }) => {
       try {
         const rooms = await getChatRooms(user.uid);
         setChatRooms(rooms);
+
+        // 각 채팅방의 다른 참가자의 UID를 사용해 닉네임을 가져옴
+        rooms.forEach(async (room) => {
+          const otherParticipantUid = room.participants.find(
+            (uid) => uid !== user.uid
+          );
+          if (otherParticipantUid) {
+            const userData = await getUserByUid(otherParticipantUid);
+            if (userData) {
+              setNicknames((prevNicknames) => ({
+                ...prevNicknames,
+                [room.id]: userData.user_name || "Unknown", // 닉네임을 저장
+              }));
+            }
+          }
+        });
       } catch (error) {
         console.error("채팅방 목록 가져오기 오류:", error);
-        // 오류는 콘솔에만 기록하고, Alert는 표시하지 않음
-        setChatRooms([]);
+        setChatRooms([]); // 오류 시 빈 배열로 설정
       }
     };
 
@@ -61,6 +77,9 @@ const ChattingRoomScreen = ({ navigation }) => {
       return null; // 다른 참가자가 없으면 렌더링하지 않음
     }
 
+    // 상대방의 닉네임을 가져옴
+    const otherParticipantNickname = nicknames[item.id] || "상대방 이름"; // 닉네임이 없을 경우 기본값
+
     return (
       <TouchableOpacity
         style={styles.roomContainer}
@@ -74,11 +93,10 @@ const ChattingRoomScreen = ({ navigation }) => {
         />
         <View style={styles.textContainer}>
           <View style={styles.nameTimeContainer}>
-            <Text style={styles.name}>상대방 이름</Text>
-            <Text style={styles.time}>
-              {item.lastMessage ? item.lastMessage : "최근 메시지 없음"}
-            </Text>
+            <Text style={styles.name}>{otherParticipantNickname}</Text>
+            {/* 대화 내용은 표시하지 않음 */}
           </View>
+          {/* 아래에 메시지 내용을 표시할 수 있습니다. */}
           <Text style={styles.message}>
             {item.lastMessage || "메시지가 없습니다."}
           </Text>
