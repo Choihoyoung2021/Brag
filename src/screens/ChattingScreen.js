@@ -1,5 +1,4 @@
-// ChattingScreen.js
-
+//ChattingScreen.js
 import React, { useState, useEffect, useRef } from "react";
 import {
   View,
@@ -11,71 +10,36 @@ import {
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
-  Image, // Image 임포트 추가
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { db } from "../firebase/FirebaseConfig"; // Firebase 설정
-import {
-  collection,
-  addDoc,
-  query,
-  onSnapshot,
-  orderBy,
-  doc,
-  getDoc,
-  updateDoc,
-} from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-import { getUserByUid } from "../firebase/firestoreService"; // 상대방 정보 가져오기
+import { ref, onValue, push, update } from "firebase/database";
+import { dbRealtime } from "../firebase/FirebaseConfig";
 
 const ChattingScreen = ({ route, navigation }) => {
   const { roomId, participants } = route.params;
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
-  const [otherUser, setOtherUser] = useState(null);
   const flatListRef = useRef(null);
   const auth = getAuth();
   const user = auth.currentUser;
 
   useEffect(() => {
-    if (!participants || !Array.isArray(participants)) {
-      Alert.alert("오류", "참가자 정보가 올바르지 않습니다.");
-      navigation.goBack();
-      return;
-    }
-
-    if (!user) {
-      Alert.alert("오류", "로그인된 사용자가 없습니다.");
-      navigation.navigate("LoginScreen"); // 로그인 화면으로 이동
-      return;
-    }
-
-    const fetchOtherUser = async () => {
-      const otherUid = participants.find((uid) => uid !== user.uid);
-      if (otherUid) {
-        const userData = await getUserByUid(otherUid);
-        setOtherUser(userData);
-      }
-    };
-
-    fetchOtherUser();
-  }, [participants, user]);
-
-  // 실시간으로 메시지 가져오기
-  useEffect(() => {
     if (!roomId) return;
 
-    const messagesQuery = query(
-      collection(db, "chats", roomId, "messages"),
-      orderBy("createdAt", "asc")
-    );
-    const unsubscribe = onSnapshot(messagesQuery, (snapshot) => {
-      const newMessages = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+    const messagesRef = ref(dbRealtime, `chatRooms/${roomId}/messages`);
+    const unsubscribe = onValue(messagesRef, (snapshot) => {
+      const newMessages = [];
+      snapshot.forEach((childSnapshot) => {
+        newMessages.push({
+          id: childSnapshot.key,
+          ...childSnapshot.val(),
+        });
+      });
       setMessages(newMessages);
     });
+
     return () => unsubscribe();
   }, [roomId]);
 
@@ -83,17 +47,40 @@ const ChattingScreen = ({ route, navigation }) => {
     if (message.trim() === "") return;
 
     try {
-      await addDoc(collection(db, "chats", roomId, "messages"), {
+      const roomRef = ref(dbRealtime, `chatRooms/${roomId}`);
+
+      // roomRef에서 데이터를 가져올 때 onValue를 사용하여 한 번만 가져옵니다.
+      onValue(
+        roomRef,
+        (snapshot) => {
+          if (!snapshot.exists()) {
+            // 채팅방이 없으면 생성
+            update(roomRef, {
+              participants: participants,
+              lastMessage: message,
+              lastMessageTime: new Date().toISOString(),
+            });
+          }
+        },
+        { onlyOnce: true }
+      );
+
+      // 메시지 추가
+      const newMessageRef = push(
+        ref(dbRealtime, `chatRooms/${roomId}/messages`)
+      );
+      const messageData = {
         text: message,
         senderUid: user.uid,
-        createdAt: new Date(),
-      });
+        createdAt: new Date().toISOString(),
+      };
 
-      // 채팅방의 마지막 메시지 업데이트
-      const chatRoomRef = doc(db, "chats", roomId);
-      await updateDoc(chatRoomRef, {
+      await update(newMessageRef, messageData);
+
+      // 채팅방의 마지막 메시지 정보 업데이트
+      await update(roomRef, {
         lastMessage: message,
-        updatedAt: new Date(),
+        lastMessageTime: messageData.createdAt,
       });
 
       setMessage("");
@@ -120,21 +107,6 @@ const ChattingScreen = ({ route, navigation }) => {
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <View style={styles.header}>
-          {otherUser && (
-            <View style={styles.headerInfo}>
-              <Image
-                source={{
-                  uri:
-                    otherUser.avatar ||
-                    "https://randomuser.me/api/portraits/men/1.jpg",
-                }}
-                style={styles.headerAvatar}
-              />
-              <Text style={styles.headerName}>{otherUser.user_name}</Text>
-            </View>
-          )}
-        </View>
         <FlatList
           ref={flatListRef}
           data={messages}
@@ -161,26 +133,6 @@ const ChattingScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: "#F8F4EC" },
   container: { flex: 1 },
-  header: {
-    padding: 10,
-    backgroundColor: "#F8F4EC",
-    borderBottomWidth: 1,
-    borderBottomColor: "#ddd",
-  },
-  headerInfo: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  headerAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: 10,
-  },
-  headerName: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
   messageContainer: { padding: 10, marginVertical: 5, borderRadius: 10 },
   selfMessage: { alignSelf: "flex-end", backgroundColor: "#D8D8D8" },
   otherMessage: { alignSelf: "flex-start", backgroundColor: "#D8D8D8" },
@@ -191,6 +143,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#F8F4EC",
     borderTopWidth: 1,
     borderTopColor: "#ddd",
+    alignItems: "center",
   },
   input: {
     flex: 1,
@@ -198,6 +151,7 @@ const styles = StyleSheet.create({
     borderColor: "#ddd",
     borderRadius: 20,
     padding: 10,
+    marginHorizontal: 10,
   },
 });
 

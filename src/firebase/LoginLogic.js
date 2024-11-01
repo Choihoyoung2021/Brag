@@ -17,6 +17,7 @@ export const handleLogin = async (userId, password) => {
       userId,
       password
     );
+
     const user = userCredential.user;
     console.log("로그인 성공:", user.email);
     return true; // 로그인 성공

@@ -4,10 +4,12 @@ import { getFirestore } from "firebase/firestore";
 import { initializeAuth, getReactNativePersistence } from "firebase/auth";
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 import { getStorage } from "firebase/storage";
+import { getDatabase } from "firebase/database";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBTSZ7g3nR6xLt3Mo5Dnf8bYjWv3KfGwDc",
   authDomain: "brag-1e4ef.firebaseapp.com",
+  databaseURL: "https://brag-1e4ef-default-rtdb.firebaseio.com",
   projectId: "brag-1e4ef",
   storageBucket: "brag-1e4ef.appspot.com",
   messagingSenderId: "690566936784",
@@ -29,4 +31,7 @@ const auth = initializeAuth(app, {
 // Firebase Storage 초기화
 const storage = getStorage(app);
 
-export { db, auth, storage };
+// Firebase Realtime Database 초기화
+const dbRealtime = getDatabase(app);
+
+export { db, auth, storage, dbRealtime };

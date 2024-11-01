@@ -180,7 +180,7 @@ export const getFriendsList = async () => {
 };
 
 // 특정 uid를 통해 user_name 가져오기 함수
-const getUserNameByUid = async (uid) => {
+export const getUserNameByUid = async (uid) => {
   try {
     const usersCollection = collection(db, "users");
     const usersQuery = query(usersCollection, where("uid", "==", uid));
@@ -373,6 +373,7 @@ export const addComment = async (
     if (isCatPost) collectionName = "cat_posts";
     if (isShortsPost) collectionName = "shorts_posts";
 
+    //댓글 추가 함수
     const userName = await getUserNameByUid(user.uid);
     const commentCollection = collection(
       db,
