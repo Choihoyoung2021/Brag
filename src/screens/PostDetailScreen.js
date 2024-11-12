@@ -125,7 +125,7 @@ const PostDetailScreen = ({ route, navigation }) => {
         renderItem={renderComment}
         keyExtractor={(item, index) => index.toString()}
         style={styles.commentList}
-        contentContainerStyle={{ paddingBottom: 100 }}
+        contentContainerStyle={{ paddingTop: 20, paddingBottom: 100 }}
         ListHeaderComponent={
           <View>
             {/* 제목 섹션 */}
