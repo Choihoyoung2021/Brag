@@ -12,9 +12,78 @@ import {
   arrayUnion,
   arrayRemove,
   where,
+  setDoc,
 } from "firebase/firestore";
 import { db } from "./FirebaseConfig";
 import { getAuth } from "firebase/auth";
+
+// 모든 메모 가져오기
+export const getAllMemos = async () => {
+  try {
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (!user) return [];
+
+    const memosCollection = collection(db, "calender_memos", user.uid, "memos");
+    const memosSnapshot = await getDocs(memosCollection);
+
+    return memosSnapshot.docs.map((doc) => doc.id);
+  } catch (error) {
+    console.error("모든 메모 가져오기 오류:", error);
+    return [];
+  }
+};
+
+// 메모 저장 함수
+export const addMemo = async (date, memo) => {
+  try {
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (!user) {
+      console.error("로그인된 사용자가 없습니다.");
+      return;
+    }
+
+    const uid = user.uid;
+    const userName = await getUserNameByUid(uid);
+    const createdAt = new Date();
+
+    const memoRef = doc(db, "calender_memos", uid, "memos", date);
+    await setDoc(memoRef, {
+      memo,
+      user_name: userName,
+      createdAt,
+    });
+
+    console.log("메모 저장 완료");
+  } catch (error) {
+    console.error("메모 저장 오류:", error);
+  }
+};
+
+// 특정 날짜에 대한 메모 가져오기
+export const getMemo = async (date) => {
+  try {
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (!user) return null;
+
+    const memoRef = doc(db, "calender_memos", user.uid, "memos", date);
+    const memoSnap = await getDoc(memoRef);
+
+    if (memoSnap.exists()) {
+      return memoSnap.data();
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error("메모 가져오기 오류:", error);
+    return null;
+  }
+};
 
 // 채팅방 가져오기 또는 생성하기
 export const getOrCreateChatRoom = async (uid1, uid2) => {
