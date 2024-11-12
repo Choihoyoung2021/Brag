@@ -15,52 +15,55 @@ import { Ionicons } from "@expo/vector-icons";
 import { getAuth } from "firebase/auth";
 import { ref, onValue, push, update } from "firebase/database";
 import { dbRealtime } from "../firebase/FirebaseConfig";
+import { getUserNameByUid } from "../firebase/firestoreService";
 
 const ChattingScreen = ({ route }) => {
   const { roomId, participants } = route.params;
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
+  const [userNames, setUserNames] = useState({});
   const flatListRef = useRef(null);
   const auth = getAuth();
   const user = auth.currentUser;
 
+  // 채팅 메시지 가져오기
   useEffect(() => {
     if (!roomId) return;
 
     const messagesRef = ref(dbRealtime, `chatRooms/${roomId}/messages`);
-    const unsubscribe = onValue(messagesRef, (snapshot) => {
+    const unsubscribe = onValue(messagesRef, async (snapshot) => {
       const newMessages = [];
-      snapshot.forEach((childSnapshot) => {
-        newMessages.push({
-          id: childSnapshot.key,
-          ...childSnapshot.val(),
-        });
-      });
+      const namesCache = { ...userNames };
+
+      if (snapshot.exists()) {
+        for (const childSnapshot of Object.values(snapshot.val())) {
+          const messageData = childSnapshot;
+          newMessages.push({
+            id: childSnapshot.key,
+            ...messageData,
+          });
+
+          const senderUid = messageData.senderUid;
+          // 닉네임 캐시에 없을 경우 가져오기
+          if (!namesCache[senderUid]) {
+            const userName = await getUserNameByUid(senderUid);
+            namesCache[senderUid] = userName;
+          }
+        }
+      }
       setMessages(newMessages);
+      setUserNames(namesCache);
     });
 
     return () => unsubscribe();
   }, [roomId]);
 
+  // 메시지 전송 함수
   const sendMessage = async () => {
     if (message.trim() === "") return;
 
     try {
       const roomRef = ref(dbRealtime, `chatRooms/${roomId}`);
-      onValue(
-        roomRef,
-        (snapshot) => {
-          if (!snapshot.exists()) {
-            update(roomRef, {
-              participants: participants,
-              lastMessage: message,
-              lastMessageTime: new Date().toISOString(),
-            });
-          }
-        },
-        { onlyOnce: true }
-      );
-
       const newMessageRef = push(
         ref(dbRealtime, `chatRooms/${roomId}/messages`)
       );
@@ -83,12 +86,16 @@ const ChattingScreen = ({ route }) => {
     }
   };
 
+  // 메시지 렌더링 함수
   const renderItem = ({ item }) => {
     const isSelf = item.senderUid === user.uid;
     const messageTime = new Date(item.createdAt).toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
     });
+    const senderName = isSelf
+      ? "나"
+      : userNames[item.senderUid] || "알 수 없는 사용자";
 
     return (
       <View
@@ -97,7 +104,7 @@ const ChattingScreen = ({ route }) => {
           isSelf ? styles.selfMessage : styles.otherMessage,
         ]}
       >
-        {/* 내 메시지: 시간 왼쪽, 상대방 메시지: 시간 오른쪽 */}
+        {!isSelf && <Text style={styles.senderName}>{senderName}</Text>}
         {isSelf && <Text style={styles.messageTimeLeft}>{messageTime}</Text>}
         <View style={styles.messageBubble}>
           <Text style={styles.messageText}>{item.text}</Text>
@@ -117,7 +124,7 @@ const ChattingScreen = ({ route }) => {
           ref={flatListRef}
           data={messages}
           renderItem={renderItem}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item.id || item.createdAt} // 고유한 key 추가
           onContentSizeChange={() => flatListRef.current.scrollToEnd()}
         />
         <View style={styles.inputContainer}>
@@ -151,7 +158,12 @@ const styles = StyleSheet.create({
   },
   otherMessage: {
     alignSelf: "flex-start",
-    flexDirection: "row",
+    flexDirection: "column",
+  },
+  senderName: {
+    fontSize: 12,
+    color: "#888",
+    marginBottom: 5,
   },
   messageBubble: {
     maxWidth: "75%",
