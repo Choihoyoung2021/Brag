@@ -9,7 +9,21 @@ import {
   Alert,
 } from "react-native";
 import { Calendar } from "react-native-calendars";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import * as Notifications from "expo-notifications";
 import { addMemo, getMemo, getAllMemos } from "../../firebase/firestoreService";
+import moment from "moment";
+import "moment/locale/ko";
+
+moment.locale("ko");
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
 
 const CalendarScreen = () => {
   const [selectedDate, setSelectedDate] = useState(null);
@@ -17,44 +31,49 @@ const CalendarScreen = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [savedMemo, setSavedMemo] = useState(null);
   const [markedDates, setMarkedDates] = useState({});
-  const [lastSelectedDate, setLastSelectedDate] = useState(null);
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [selectedTime, setSelectedTime] = useState(null);
+  const [lastClickedDate, setLastClickedDate] = useState(null);
 
   useEffect(() => {
     const fetchMarkedDates = async () => {
       const memoDates = await getAllMemos();
       const newMarkedDates = {};
       memoDates.forEach((date) => {
-        newMarkedDates[date] = {
-          marked: true,
-          dotColor: "red",
-        };
+        newMarkedDates[date] = { marked: true, dotColor: "red" };
       });
       setMarkedDates(newMarkedDates);
     };
-
     fetchMarkedDates();
+
+    requestNotificationPermission();
   }, []);
 
-  // 날짜 클릭 시 동작
-  const handleDayPress = async (day) => {
-    const clickedDate = day.dateString;
-
-    // 같은 날짜를 다시 클릭하면 수정 모달 열기
-    if (clickedDate === lastSelectedDate) {
-      setIsModalVisible(true);
-      setMemo(savedMemo?.memo || "");
-      return;
+  const requestNotificationPermission = async () => {
+    const { status } = await Notifications.requestPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert("알림 권한 필요", "알림을 받으려면 권한을 허용하세요.");
     }
-
-    // 새로운 날짜를 클릭했을 경우, 메모를 가져오기
-    const memoData = await getMemo(clickedDate);
-    setSelectedDate(clickedDate);
-    setSavedMemo(memoData);
-    setMemo(memoData?.memo || "");
-    setLastSelectedDate(clickedDate);
   };
 
-  // 메모 저장 함수
+  const handleDayPress = async (day) => {
+    const clickedDate = day.dateString;
+    const memoData = await getMemo(clickedDate);
+
+    // 같은 날짜를 두 번 클릭했을 때 수정 모달 열기
+    if (clickedDate === lastClickedDate) {
+      setIsModalVisible(true);
+      setMemo(memoData?.memo || "");
+      setSelectedDate(clickedDate);
+      setSavedMemo(memoData);
+    } else {
+      // 첫 번째 클릭 시 저장된 메모만 표시
+      setSavedMemo(memoData);
+      setSelectedDate(clickedDate);
+      setLastClickedDate(clickedDate);
+    }
+  };
+
   const handleSaveMemo = async () => {
     if (memo.trim() === "") {
       Alert.alert("경고", "메모를 입력하세요.");
@@ -67,33 +86,64 @@ const CalendarScreen = () => {
       ...prevDates,
       [selectedDate]: { marked: true, dotColor: "red" },
     }));
+    if (selectedTime) {
+      await scheduleNotification(selectedDate, selectedTime);
+    }
+  };
+
+  const handleTimeChange = (event, selectedDate) => {
+    const currentDate = selectedDate || new Date();
+    setShowTimePicker(false);
+    setSelectedTime(currentDate);
+  };
+
+  const scheduleNotification = async (date, time) => {
+    const notificationDate = new Date(date);
+    notificationDate.setHours(time.getHours());
+    notificationDate.setMinutes(time.getMinutes());
+    notificationDate.setSeconds(0);
+
+    if (notificationDate <= new Date()) {
+      Alert.alert("경고", "미래의 시간을 선택하세요.");
+      return;
+    }
+
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "📅 알림",
+        body: `선택하신 일정: ${memo}`,
+        sound: true,
+      },
+      trigger: { seconds: (notificationDate.getTime() - Date.now()) / 1000 },
+    });
+
+    Alert.alert(
+      "알림 설정 완료",
+      `${notificationDate.toLocaleString()}에 알림이 울립니다.`
+    );
   };
 
   return (
     <View style={styles.container}>
       <Calendar
         current={new Date().toISOString().split("T")[0]}
-        minDate={"2023-01-01"}
-        maxDate={"2024-12-31"}
         onDayPress={handleDayPress}
-        markedDates={{
-          ...markedDates,
-          [selectedDate]: { selected: true, selectedColor: "blue" },
-        }}
+        markedDates={markedDates}
         style={styles.calendar}
+        locale={"ko"}
+        monthFormat={"yyyy년 MM월"}
+        firstDay={0}
+        enableSwipeMonths={true}
       />
 
-      {/* 저장된 메모 표시 */}
       {savedMemo && (
         <View style={styles.memoContainer}>
           <Text style={styles.memoText}>내용: {savedMemo.memo}</Text>
         </View>
       )}
 
-      {/* 메모 수정 모달 */}
       <Modal
         visible={isModalVisible}
-        animationType="slide"
         transparent={true}
         onRequestClose={() => setIsModalVisible(false)}
       >
@@ -106,6 +156,17 @@ const CalendarScreen = () => {
               onChangeText={setMemo}
               multiline
             />
+            <Button title="시간 선택" onPress={() => setShowTimePicker(true)} />
+            {selectedTime && (
+              <Text>선택된 시간: {selectedTime.toLocaleTimeString()}</Text>
+            )}
+            {showTimePicker && (
+              <DateTimePicker
+                value={selectedTime || new Date()}
+                mode="time"
+                onChange={handleTimeChange}
+              />
+            )}
             <Button title="저장하기" onPress={handleSaveMemo} />
             <Button title="닫기" onPress={() => setIsModalVisible(false)} />
           </View>
@@ -118,45 +179,26 @@ const CalendarScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8F4EC",
     paddingTop: 50,
-    paddingHorizontal: 10,
+    backgroundColor: "#F8F4EC",
   },
   calendar: {
     borderWidth: 1,
     borderColor: "#e0e0e0",
     borderRadius: 8,
+    backgroundColor: "#F8F4EC",
   },
-  memoContainer: {
-    marginTop: 20,
-  },
-  memoText: {
-    fontSize: 16,
-    color: "#333",
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.5)",
-  },
-  modalContent: {
-    width: "80%",
-    padding: 20,
-    backgroundColor: "#ffffff",
-    borderRadius: 10,
-  },
-  modalTitle: {
-    fontSize: 18,
-    marginBottom: 10,
-  },
+  memoContainer: { marginTop: 20 },
+  memoText: { fontSize: 16, backgroundColor: "#F8F4EC" },
+  modalContainer: { flex: 1, justifyContent: "center" },
+  modalContent: { padding: 20, backgroundColor: "#f8e9d7", borderRadius: 10 },
   input: {
     height: 100,
-    borderColor: "#ddd",
     borderWidth: 1,
-    borderRadius: 5,
     marginBottom: 10,
-    padding: 10,
+    borderRadius: 5,
+    textAlignVertical: "top",
+    backgroundColor: "#f9f9f9",
   },
 });
 

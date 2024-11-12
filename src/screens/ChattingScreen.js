@@ -1,4 +1,3 @@
-//ChattingScreen.js
 import React, { useState, useEffect, useRef } from "react";
 import {
   View,
@@ -49,12 +48,11 @@ const ChattingScreen = ({ route, navigation }) => {
     try {
       const roomRef = ref(dbRealtime, `chatRooms/${roomId}`);
 
-      // roomRef에서 데이터를 가져올 때 onValue를 사용하여 한 번만 가져옵니다.
+      // 채팅방 생성 또는 업데이트
       onValue(
         roomRef,
         (snapshot) => {
           if (!snapshot.exists()) {
-            // 채팅방이 없으면 생성
             update(roomRef, {
               participants: participants,
               lastMessage: message,
@@ -90,16 +88,28 @@ const ChattingScreen = ({ route, navigation }) => {
     }
   };
 
-  const renderItem = ({ item }) => (
-    <View
-      style={[
-        styles.messageContainer,
-        item.senderUid === user.uid ? styles.selfMessage : styles.otherMessage,
-      ]}
-    >
-      <Text style={styles.messageText}>{item.text}</Text>
-    </View>
-  );
+  const renderItem = ({ item }) => {
+    const isSelf = item.senderUid === user.uid;
+    const messageTime = new Date(item.createdAt).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    return (
+      <View
+        style={[
+          styles.messageContainer,
+          isSelf ? styles.selfMessage : styles.otherMessage,
+        ]}
+      >
+        {!isSelf && <Text style={styles.messageTime}>{messageTime}</Text>}
+        <View style={styles.messageBubble}>
+          <Text style={styles.messageText}>{item.text}</Text>
+        </View>
+        {isSelf && <Text style={styles.messageTime}>{messageTime}</Text>}
+      </View>
+    );
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -133,10 +143,30 @@ const ChattingScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: "#F8F4EC" },
   container: { flex: 1 },
-  messageContainer: { padding: 10, marginVertical: 5, borderRadius: 10 },
-  selfMessage: { alignSelf: "flex-end", backgroundColor: "#D8D8D8" },
-  otherMessage: { alignSelf: "flex-start", backgroundColor: "#D8D8D8" },
-  messageText: { color: "#000000" },
+  messageContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 10,
+    marginVertical: 5,
+  },
+  selfMessage: {
+    alignSelf: "flex-end",
+    flexDirection: "row-reverse",
+  },
+  otherMessage: { alignSelf: "flex-start" },
+  messageBubble: {
+    maxWidth: "75%",
+    backgroundColor: "#D8D8D8",
+    borderRadius: 10,
+    padding: 10,
+    marginHorizontal: 5,
+  },
+  messageText: { color: "#000" },
+  messageTime: {
+    fontSize: 10,
+    color: "#999",
+    marginHorizontal: 5,
+  },
   inputContainer: {
     flexDirection: "row",
     padding: 10,
