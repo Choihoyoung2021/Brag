@@ -1,4 +1,3 @@
-// AddPostScreen.js
 import React, { useState } from "react";
 import {
   View,
@@ -18,13 +17,12 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "../../../firebase/FirebaseConfig";
 
 const AddPostScreen = ({ navigation, route }) => {
-  const category = route.params?.category || "free"; // 카테고리 정보 가져오기 (기본값: "free")
+  const category = route.params?.category || "free";
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [images, setImages] = useState([]); // 선택된 이미지의 로컬 URI 저장
+  const [images, setImages] = useState([]);
   const [uploading, setUploading] = useState(false);
 
-  // 이미지 선택 함수
   const pickImage = async () => {
     try {
       const { status } =
@@ -44,7 +42,7 @@ const AddPostScreen = ({ navigation, route }) => {
 
       if (!result.canceled) {
         const resizedUri = await resizeImage(result.assets[0].uri);
-        setImages([...images, resizedUri]); // 이미지 URI를 배열에 추가
+        setImages([...images, resizedUri]);
       }
     } catch (error) {
       console.error("이미지 선택 오류:", error);
@@ -52,12 +50,11 @@ const AddPostScreen = ({ navigation, route }) => {
     }
   };
 
-  // 이미지 크기 조정 함수
   const resizeImage = async (uri) => {
     try {
       const resizedImage = await ImageManipulator.manipulateAsync(
         uri,
-        [{ resize: { width: 800 } }], // 너비 800px로 크기 조정
+        [{ resize: { width: 800 } }],
         { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
       );
       return resizedImage.uri;
@@ -67,20 +64,15 @@ const AddPostScreen = ({ navigation, route }) => {
     }
   };
 
-  // 이미지 업로드 함수
   const uploadImageAsync = async (uri) => {
     try {
       const blob = await getBlob(uri);
       const fileName = `${Date.now()}-${uri.split("/").pop()}`;
-      const storageRef = ref(storage, `images/${fileName}`); // 파일 이름을 Firebase Storage 경로로 설정
-
+      const storageRef = ref(storage, `images/${fileName}`);
       await uploadBytes(storageRef, blob);
       blob.close();
-
-      // 다운로드 URL 가져오기
       const downloadUrl = await getDownloadURL(storageRef);
-      console.log("업로드된 이미지 URL:", downloadUrl); // HTTP URL 확인 로그 출력
-      return { fileName, downloadUrl }; // 파일 이름과 URL 반환
+      return { fileName, downloadUrl };
     } catch (error) {
       console.error("이미지 업로드 오류:", error);
       Alert.alert("오류", "이미지 업로드 중 문제가 발생했습니다.");
@@ -88,14 +80,12 @@ const AddPostScreen = ({ navigation, route }) => {
     }
   };
 
-  // 로컬 URI를 Blob으로 변환하는 함수
   const getBlob = async (uri) => {
     const response = await fetch(uri);
     const blob = await response.blob();
     return blob;
   };
 
-  // 게시물 저장 함수
   const handleSave = async () => {
     if (title === "" || content === "") {
       Alert.alert("오류", "제목과 내용을 입력해 주세요.");
@@ -105,17 +95,14 @@ const AddPostScreen = ({ navigation, route }) => {
     setUploading(true);
 
     try {
-      // 이미지 업로드
       const imageUploadResults = await Promise.all(
         images.map((image) => uploadImageAsync(image))
       );
       const filteredResults = imageUploadResults.filter(
         (result) => result !== null
-      ); // 유효한 URL만 추출
-      const imageNames = filteredResults.map((result) => result.fileName); // 업로드된 파일 이름 저장
-      const imageUrls = filteredResults.map((result) => result.downloadUrl); // 업로드된 URL 저장
-
-      // Firestore에 게시물 데이터 저장 (URL과 파일 이름 모두 저장)
+      );
+      const imageNames = filteredResults.map((result) => result.fileName);
+      const imageUrls = filteredResults.map((result) => result.downloadUrl);
       await addPost(title, content, category, imageUrls, imageNames);
       Alert.alert("성공", "글 작성이 완료되었습니다.");
       navigation.goBack();
@@ -128,7 +115,7 @@ const AddPostScreen = ({ navigation, route }) => {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.label}>제목</Text>
       <TextInput
         style={styles.input}
@@ -155,51 +142,89 @@ const AddPostScreen = ({ navigation, route }) => {
           </TouchableOpacity>
         )}
       </View>
-      <Button
-        title={uploading ? "업로드 중..." : "저장"}
+      <TouchableOpacity
+        style={styles.buttonContainer}
         onPress={handleSave}
         disabled={uploading}
-      />
+      >
+        <Text style={styles.buttonText}>
+          {uploading ? "업로드 중..." : "저장"}
+        </Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#F8F4EC" },
-  label: { fontSize: 16, fontWeight: "bold", marginBottom: 10 },
+  container: {
+    flex: 1,
+    paddingTop: 70, // 상단 패딩을 추가하여 화면을 아래로 내림
+    paddingHorizontal: 20,
+    backgroundColor: "#F8F4EC",
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 10,
+    marginTop: 20, // 라벨 상단 여백 추가
+  },
   input: {
-    height: 40,
+    height: 50,
     borderColor: "#ccc",
     borderWidth: 1,
-    marginBottom: 20,
-    padding: 10,
-    borderRadius: 5,
+    marginBottom: 30, // 아래 여백 추가
+    paddingHorizontal: 15,
+    borderRadius: 10,
   },
   textArea: {
-    height: 100,
+    height: 120,
     borderColor: "#ccc",
     borderWidth: 1,
-    marginBottom: 20,
-    padding: 10,
-    borderRadius: 5,
+    marginBottom: 30, // 아래 여백 추가
+    padding: 15,
+    borderRadius: 10,
   },
   imageContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
-    marginBottom: 20,
+    marginBottom: 30, // 아래 여백 추가
   },
-  image: { width: 80, height: 80, borderRadius: 10, margin: 5 },
+  image: {
+    width: 100,
+    height: 100,
+    borderRadius: 10,
+    margin: 10,
+  },
   imagePlaceholder: {
-    width: 80,
-    height: 80,
+    width: 100,
+    height: 100,
     borderRadius: 10,
     borderColor: "#ccc",
     borderWidth: 1,
     justifyContent: "center",
     alignItems: "center",
+    margin: 10,
   },
-  imageText: { fontSize: 40, color: "#ccc" },
+  imageText: {
+    fontSize: 40,
+    color: "#ccc",
+  },
+  buttonContainer: {
+    marginTop: 40,
+    alignSelf: "center",
+    backgroundColor: "#007bff",
+    borderRadius: 20,
+    paddingVertical: 15,
+    paddingHorizontal: 40,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 80, // 아래 여백 추가
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 18,
+    textAlign: "center",
+  },
 });
 
 export default AddPostScreen;
-0;

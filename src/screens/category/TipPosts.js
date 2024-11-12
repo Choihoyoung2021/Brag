@@ -6,25 +6,24 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  Image, // Image 컴포넌트 추가
+  Image,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
-import { getPostsByCategory } from "../../firebase/firestoreService"; // 수정된 getPostsByCategory 함수 사용
+import { getPostsByCategory } from "../../firebase/firestoreService";
 
-const DogPost = ({ navigation }) => {
+const TipPost = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
   const [searchText, setSearchText] = useState("");
 
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const categoryPosts = await getPostsByCategory("tip"); // "dog" 카테고리의 글만 가져옴
+        const categoryPosts = await getPostsByCategory("tip");
         setPosts(categoryPosts);
       } catch (error) {
         console.error("Error fetching posts:", error);
       }
     };
-
     fetchPosts();
   }, []);
 
@@ -33,7 +32,7 @@ const DogPost = ({ navigation }) => {
   };
 
   const handleAddPost = () => {
-    navigation.navigate("AddPost", { category: "tip" }); // 글쓰기 화면으로 이동 시 "dog" 카테고리 정보 전달
+    navigation.navigate("AddPost", { category: "tip" });
   };
 
   const handlePostPress = (post) => {
@@ -42,7 +41,7 @@ const DogPost = ({ navigation }) => {
       content: post.content,
       postId: post.id,
       category: "tip",
-      imageUrls: post.imageUrls || [], // 이미지 URL 배열 전달
+      imageUrls: post.imageUrls || [],
       uid: post.uid,
     });
   };
@@ -56,11 +55,10 @@ const DogPost = ({ navigation }) => {
       <Text style={styles.content} numberOfLines={1} ellipsizeMode="tail">
         {item.content}
       </Text>
-      {/* 이미지 썸네일 추가 (첫 번째 이미지만 표시) */}
       {item.imageUrls && item.imageUrls.length > 0 && (
         <Image
-          source={{ uri: item.imageUrls[0] }} // 첫 번째 이미지의 URL 사용
-          style={styles.thumbnailImage} // 스타일 적용
+          source={{ uri: item.imageUrls[0] }}
+          style={styles.thumbnailImage}
         />
       )}
     </TouchableOpacity>
@@ -77,7 +75,6 @@ const DogPost = ({ navigation }) => {
         />
         <Icon name="search" size={20} color="#000" style={styles.searchIcon} />
       </View>
-
       <FlatList
         data={posts.filter(
           (post) =>
@@ -86,8 +83,8 @@ const DogPost = ({ navigation }) => {
         keyExtractor={(item) => item.id}
         renderItem={renderPost}
         style={styles.postsContainer}
+        contentContainerStyle={{ paddingBottom: 100 }}
       />
-
       <TouchableOpacity style={styles.buttonContainer} onPress={handleAddPost}>
         <Text style={styles.buttonText}>글쓰기</Text>
       </TouchableOpacity>
@@ -98,18 +95,20 @@ const DogPost = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
+    paddingTop: 50,
+    paddingHorizontal: 10,
     backgroundColor: "#F8F4EC",
-    alignItems: "center",
   },
   searchBarContainer: {
     flexDirection: "row",
     alignItems: "center",
-    width: "70%",
+    width: "90%",
     borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 5,
     paddingLeft: 10,
+    marginBottom: 20,
+    alignSelf: "center",
   },
   searchBar: {
     flex: 1,
@@ -120,13 +119,13 @@ const styles = StyleSheet.create({
   },
   postsContainer: {
     flex: 1,
-    width: "100%",
-    marginTop: 10,
+    marginTop: 20,
   },
   post: {
-    padding: 10,
+    padding: 15,
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
+    marginBottom: 15,
   },
   postHeader: {
     flexDirection: "row",
@@ -139,25 +138,17 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
   },
   buttonContainer: {
-    marginTop: 10,
-    alignItems: "flex-end",
-    marginBottom: 80,
-    marginRight: 20,
-    padding: 10,
+    marginTop: 20,
+    marginBottom: 50,
+    alignItems: "center",
     backgroundColor: "#007bff",
     borderRadius: 20,
-    width: 120,
+    padding: 10,
+    width: 100,
     alignSelf: "flex-end",
-    alignItems: "center",
   },
   buttonText: {
     color: "#fff",
-    fontSize: 16,
-  },
-  content: {
-    color: "#333",
-    fontSize: 14,
-    marginTop: 5,
   },
   thumbnailImage: {
     width: 80,
@@ -167,4 +158,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DogPost;
+export default TipPost;

@@ -106,18 +106,20 @@ const DogPhotoScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
+    paddingTop: 50,
+    paddingHorizontal: 10,
     backgroundColor: "#F8F4EC",
-    alignItems: "center",
   },
   searchBarContainer: {
     flexDirection: "row",
     alignItems: "center",
-    width: "70%",
+    width: "90%",
     borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 5,
     paddingLeft: 10,
+    marginBottom: 20,
+    alignSelf: "center",
   },
   searchBar: {
     flex: 1,
@@ -128,13 +130,13 @@ const styles = StyleSheet.create({
   },
   postsContainer: {
     flex: 1,
-    width: "100%",
-    marginTop: 10,
+    marginTop: 20,
   },
   post: {
-    padding: 10,
+    padding: 15,
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
+    marginBottom: 15,
   },
   postHeader: {
     flexDirection: "row",
@@ -147,25 +149,17 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
   },
   buttonContainer: {
-    marginTop: 10,
-    alignItems: "flex-end",
-    marginBottom: 80,
-    marginRight: 20,
-    padding: 10,
+    marginTop: 20,
+    marginBottom: 50,
+    alignItems: "center",
     backgroundColor: "#007bff",
     borderRadius: 20,
-    width: 120,
+    padding: 10,
+    width: 100,
     alignSelf: "flex-end",
-    alignItems: "center",
   },
   buttonText: {
     color: "#fff",
-    fontSize: 16,
-  },
-  content: {
-    color: "#333",
-    fontSize: 14,
-    marginTop: 5,
   },
   thumbnailImage: {
     width: 80,

@@ -1,4 +1,3 @@
-//Announcement.js 파일
 import React from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 
@@ -21,7 +20,8 @@ const Announcement = () => {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    padding: 16,
+    paddingTop: 50,
+    paddingHorizontal: 20,
     backgroundColor: "#F8F4EC",
   },
   announcementBox: {
@@ -33,6 +33,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 3,
+    marginBottom: 20,
   },
   title: {
     fontSize: 24,

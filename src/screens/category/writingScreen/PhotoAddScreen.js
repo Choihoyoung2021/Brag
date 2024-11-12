@@ -164,40 +164,75 @@ const PhotoAddScreen = ({ navigation, route }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#F8F4EC" },
-  label: { fontSize: 16, fontWeight: "bold", marginBottom: 10 },
+  container: {
+    flex: 1,
+    paddingTop: 70, // 상단 패딩을 추가하여 화면을 아래로 내림
+    paddingHorizontal: 20,
+    backgroundColor: "#F8F4EC",
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 10,
+    marginTop: 20, // 라벨 상단 여백 추가
+  },
   input: {
-    height: 40,
+    height: 50,
     borderColor: "#ccc",
     borderWidth: 1,
-    marginBottom: 20,
-    padding: 10,
-    borderRadius: 5,
+    marginBottom: 30, // 아래 여백 추가
+    paddingHorizontal: 15,
+    borderRadius: 10,
   },
   textArea: {
-    height: 100,
+    height: 120,
     borderColor: "#ccc",
     borderWidth: 1,
-    marginBottom: 20,
-    padding: 10,
-    borderRadius: 5,
+    marginBottom: 30, // 아래 여백 추가
+    padding: 15,
+    borderRadius: 10,
   },
   imageContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
-    marginBottom: 20,
+    marginBottom: 30, // 아래 여백 추가
   },
-  image: { width: 80, height: 80, borderRadius: 10, margin: 5 },
+  image: {
+    width: 100,
+    height: 100,
+    borderRadius: 10,
+    margin: 10,
+  },
   imagePlaceholder: {
-    width: 80,
-    height: 80,
+    width: 100,
+    height: 100,
     borderRadius: 10,
     borderColor: "#ccc",
     borderWidth: 1,
     justifyContent: "center",
     alignItems: "center",
+    margin: 10,
   },
-  imageText: { fontSize: 40, color: "#ccc" },
+  imageText: {
+    fontSize: 40,
+    color: "#ccc",
+  },
+  buttonContainer: {
+    marginTop: 40,
+    alignSelf: "center",
+    backgroundColor: "#007bff",
+    borderRadius: 20,
+    paddingVertical: 15,
+    paddingHorizontal: 40,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 80, // 아래 여백 추가
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 18,
+    textAlign: "center",
+  },
 });
 
 export default PhotoAddScreen;

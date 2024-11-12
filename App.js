@@ -69,74 +69,74 @@ export default function App() {
         <Stack.Screen
           name="Announcement"
           component={Announcement}
-          options={{ title: "공지사항" }}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="Calender"
           component={Calender}
-          options={{ title: "캘린더" }}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="FreePosts"
           component={FreePosts}
-          options={{ title: "자유게시판" }}
+          options={{ headerShown: false }}
         />
 
         <Stack.Screen
           name="TipPosts"
           component={TipPosts}
-          options={{ title: "나만의 사육TIP" }}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="AddPost"
           component={AddPostScreen}
-          options={{ title: "글쓰기" }}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="PostDetail"
           component={PostDetailScreen} // PostDetailScreen 추가
-          options={{ title: "게시물 상세보기" }} // 제목 설정
+          options={{ headerShown: false }} // 제목 설정
         />
         <Stack.Screen
           name="CatPost"
           component={CatPost}
-          options={{ title: "고양이 게시판" }} // CatPost 스크린 추가
+          options={{ headerShown: false }} // CatPost 스크린 추가
         />
         <Stack.Screen
           name="DogPost"
           component={DogPost}
-          options={{ title: "강아지 게시판" }} // DogPost 스크린 추가
+          options={{ headerShown: false }} // DogPost 스크린 추가
         />
         <Stack.Screen
           name="DogPhoto"
           component={DogPhotoScreen}
-          options={{ title: "강아지 사진" }} // DogPost 스크린 추가
+          options={{ headerShown: false }} // DogPost 스크린 추가
         />
         <Stack.Screen
           name="CatPhoto"
           component={CatPhotoScreen}
-          options={{ title: "고양이 사진" }} // DogPost 스크린 추가
+          options={{ headerShown: false }} // DogPost 스크린 추가
         />
         <Stack.Screen
           name="PhotoAddScreen"
           component={PhotoAddScreen}
-          options={{ title: "포토 글쓰기" }} // DogPost 스크린 추가
+          options={{ headerShown: false }} // DogPost 스크린 추가
         />
 
         <Stack.Screen
           name="RangKing1Screen"
           component={RangKing1Screen}
-          options={{ title: "랭킹1위" }} // DogPost 스크린 추가
+          options={{ headerShown: false }} // DogPost 스크린 추가
         />
         <Stack.Screen
           name="RangKing2Screen"
           component={RangKing2Screen}
-          options={{ title: "랭킹2위" }} // DogPost 스크린 추가
+          options={{ headerShown: false }} // DogPost 스크린 추가
         />
         <Stack.Screen
           name="RangKing3Screen"
           component={RangKing3Screen}
-          options={{ title: "랭킹3위" }} // DogPost 스크린 추가
+          options={{ headerShown: false }} // DogPost 스크린 추가
         />
         <Stack.Screen
           name="ShortsproduceScreen"

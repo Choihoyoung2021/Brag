@@ -16,7 +16,7 @@ import { getAuth } from "firebase/auth";
 import { ref, onValue, push, update } from "firebase/database";
 import { dbRealtime } from "../firebase/FirebaseConfig";
 
-const ChattingScreen = ({ route, navigation }) => {
+const ChattingScreen = ({ route }) => {
   const { roomId, participants } = route.params;
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
@@ -47,8 +47,6 @@ const ChattingScreen = ({ route, navigation }) => {
 
     try {
       const roomRef = ref(dbRealtime, `chatRooms/${roomId}`);
-
-      // 채팅방 생성 또는 업데이트
       onValue(
         roomRef,
         (snapshot) => {
@@ -63,7 +61,6 @@ const ChattingScreen = ({ route, navigation }) => {
         { onlyOnce: true }
       );
 
-      // 메시지 추가
       const newMessageRef = push(
         ref(dbRealtime, `chatRooms/${roomId}/messages`)
       );
@@ -74,8 +71,6 @@ const ChattingScreen = ({ route, navigation }) => {
       };
 
       await update(newMessageRef, messageData);
-
-      // 채팅방의 마지막 메시지 정보 업데이트
       await update(roomRef, {
         lastMessage: message,
         lastMessageTime: messageData.createdAt,
@@ -102,11 +97,12 @@ const ChattingScreen = ({ route, navigation }) => {
           isSelf ? styles.selfMessage : styles.otherMessage,
         ]}
       >
-        {!isSelf && <Text style={styles.messageTime}>{messageTime}</Text>}
+        {/* 내 메시지: 시간 왼쪽, 상대방 메시지: 시간 오른쪽 */}
+        {isSelf && <Text style={styles.messageTimeLeft}>{messageTime}</Text>}
         <View style={styles.messageBubble}>
           <Text style={styles.messageText}>{item.text}</Text>
         </View>
-        {isSelf && <Text style={styles.messageTime}>{messageTime}</Text>}
+        {!isSelf && <Text style={styles.messageTimeRight}>{messageTime}</Text>}
       </View>
     );
   };
@@ -151,9 +147,12 @@ const styles = StyleSheet.create({
   },
   selfMessage: {
     alignSelf: "flex-end",
-    flexDirection: "row-reverse",
+    flexDirection: "row",
   },
-  otherMessage: { alignSelf: "flex-start" },
+  otherMessage: {
+    alignSelf: "flex-start",
+    flexDirection: "row",
+  },
   messageBubble: {
     maxWidth: "75%",
     backgroundColor: "#D8D8D8",
@@ -162,10 +161,17 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
   },
   messageText: { color: "#000" },
-  messageTime: {
+  messageTimeLeft: {
     fontSize: 10,
     color: "#999",
-    marginHorizontal: 5,
+    marginRight: 5,
+    alignSelf: "center",
+  },
+  messageTimeRight: {
+    fontSize: 10,
+    color: "#999",
+    marginLeft: 5,
+    alignSelf: "center",
   },
   inputContainer: {
     flexDirection: "row",

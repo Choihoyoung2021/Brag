@@ -125,6 +125,7 @@ const PostDetailScreen = ({ route, navigation }) => {
         renderItem={renderComment}
         keyExtractor={(item, index) => index.toString()}
         style={styles.commentList}
+        contentContainerStyle={{ paddingBottom: 100 }}
         ListHeaderComponent={
           <View>
             {/* 제목 섹션 */}
@@ -207,6 +208,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    top: 20,
   },
   title: { fontSize: 24, fontWeight: "bold" },
   deleteButton: { padding: 5 },
